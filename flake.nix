@@ -1,9 +1,3 @@
-# TODO GOALS
-
-# 1. I don't think you're meant to package linuxdeploy like that. It'd be great if it used pkgs.appimageTools.wrapType2 like appimagetool - but that doesn't seem to work.
-# 2. Support for more architectures
-# 3. Add support for YYC
-
 {
   description = "A flake for the GameMaker IDE and GameMaker games";
 
@@ -124,7 +118,6 @@
               # need to get clang-3.8
             ]);
           profile = ''
-
             export LD_LIBRARY_PATH=/lib
             export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib
             export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu
@@ -135,6 +128,10 @@
           '';
           runScript = runScript;
           extraInstallCommands = extraInstallCommands;
+          extraBuildCommands = ''
+            mkdir $out/opt
+            ln -s ../.. $out/opt/steam-runtime
+          '';
         };
 
       makeGamemakerPackageFromBeta =
