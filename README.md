@@ -1,8 +1,9 @@
 # gamemaker-flake
 A Nix flake for GameMaker, and for playing/building GameMaker games.
-This flake contains:
+This flake has:
 - Package outputs for different IDE versions
 - A shell in the same environment used for the IDE, so you can play/build games
+- Support for VM/YYC building, with no setup required!
 
 This flake only targets x86_64-linux for now. If you want to add support for your platform, See 
 [Contributing](#contributing)
@@ -10,10 +11,12 @@ This flake only targets x86_64-linux for now. If you want to add support for you
 Please see https://github.com/MichailiK/yoyo-games-runner-nix - without which this flake would have been way worse.
 
 ## Important
-All of the outputs depend on OpenSSL 1.0.2 (for some reason, this library is required to run GameMaker games), which has been EOL since 2019 and is considered insecure.
+- All of the outputs depend on OpenSSL 1.0.2 (for some reason, this library is required to run GameMaker games), which has been EOL since 2019 and is considered insecure.
 I couldn't set it up in a way where you explicitly add it to `nixpkgs.config.permittedInsecurePackages` - instead the flake doesn't require you to do anything.
 So I'm leaving this warning here. By using any of the outputs you are installing this insecure package.
 
+- All old packages pull from https://github.com/Skirlez/gamemaker-ubuntu-archive as GameMaker removed all of their old releases a while back.
+(If you have any `.deb` files of old releases, please open an issue there!)
 ## Packages
 Package output list:
 ```
@@ -73,7 +76,8 @@ If some of your project files from a Windows project refuse to load, try enablin
 
 ## TODO
 - I don't think you're meant to package linuxdeploy like that. It'd be great if it used pkgs.appimageTools.wrapType2 like appimagetool, but that doesn't seem to work.
-- Add support for YYC
+- Make YYC use clang 3.8 and not clang 12. In general, clean up the way YYC compilation works.
+- Actually, clean up the entire thing. 
 
 ## License
 The `debian` folder contains code from https://github.com/MichailiK/yoyo-games-runner-nix, which has no stated license, so

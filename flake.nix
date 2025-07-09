@@ -3,11 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    
     # current nixpkgs does not package OpenSSL 1.0.x
-    nixpkgs-openssl.url =
-      "github:NixOS/nixpkgs?ref=d1c3fea7ecbed758168787fe4e4a3157e52bc808";
-
-    # major shoutouts to https://github.com/MichailiK/yoyo-games-runner-nix/blob/main/flake.nix ^
+    # major shoutouts to https://github.com/MichailiK/yoyo-games-runner-nix/blob/main/flake.nix
+    nixpkgs-openssl.url = "github:NixOS/nixpkgs?ref=d1c3fea7ecbed758168787fe4e4a3157e52bc808";
   };
 
   outputs = { self, nixpkgs, nixpkgs-openssl }:
@@ -21,7 +20,25 @@
         # TODO: is this necessary? I can't include the package in my system packages otherwise.
         config.permittedInsecurePackages = [ "openssl-1.0.2u" ];
       };
+
       openssl_1_0 = pkgs-openssl.openssl_1_0_2;
+      
+      /* this went unused because it complains about glibc errors, and clang-12 seems to work.
+      would probably be better if it was working
+
+      # major shoutouts to https://lazamar.co.uk/nix-versions/
+      # this can't be done like the other nixpkgs because flake.nix doesn't exist yet on the root of the repository 
+      # (i'm theorizing, but that's what the error said)
+      pkgs-clang = import (builtins.fetchGit {               
+        name = "nixpkgs-with-clang-38";                                             
+        url = "https://github.com/NixOS/nixpkgs/";                       
+        ref = "refs/heads/nixpkgs-unstable";                     
+        rev = "0eddd4230678fc2c880c60b2fe530387db8798ac";       
+      }) { inherit system; };
+      clang_38 = pkgs-clang.clang_38;
+
+      
+      */
 
       appimagetool = pkgs.appimageTools.wrapType2 {
         pname = "appimagetool";
@@ -61,6 +78,7 @@
         '';
       };
 
+
       makeGamemakerFhs = { name, runScript, extraInstallCommands ? "" }:
         pkgs.buildFHSEnv {
           name = name;
@@ -74,7 +92,7 @@
               libGL
               libGLU
               zlib
-              (pkgs.callPackage ./debian/libcurl3-gnutls.nix { })
+              (callPackage ./debian/libcurl3-gnutls.nix { })
               ffmpeg_6
               fuse
               icu
@@ -100,9 +118,13 @@
               gcc.cc.lib
               xorg.libXext
               xorg.libXrandr
+              
               e2fsprogs
               libgpg-error
               ffmpeg_4.lib
+
+              # required for yyc
+              xorg.libXfixes
 
               # Seems to work without, but log errors about it missing
               procps # for pidof
@@ -115,7 +137,11 @@
 
               # yyc shits
               gnumake
-              # need to get clang-3.8
+              binutils
+
+              # clang wants it. I don't know why. Doesn't seem to cause issues with anything else
+              # TODO: maybe we can symlink the other curl so it finds that one instead.
+              curl
             ]);
           profile = ''
             export LD_LIBRARY_PATH=/lib
@@ -123,14 +149,42 @@
             export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu
             export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib/x86_64-linux-gnu
 
-            # We have to include the run directory because gamemaker expects to find xdg-open. Not very Reproducible but you know
+            # We have to include the run directory because gamemaker uses xdg-open, which expects to find whatever your system's way
+            # is of opening a folder (kde-open for me). Not very Reproducible but you know
             export PATH="/bin:/usr/bin:/run/current-system/sw/bin/"
+
+            # TODO check if this is still required for clang to behave
+            unset TMPDIR
           '';
           runScript = runScript;
           extraInstallCommands = extraInstallCommands;
           extraBuildCommands = ''
             mkdir $out/opt
+
+            # gamemaker, by default, sets this path as the path to chroot to when building.
+            # in order to make it easier for the user we just symlink it to the FHS env root, which is what we want
             ln -s ../.. $out/opt/steam-runtime
+            
+            # gamemaker expects clang-3.8.
+            # Usually it gets a weird version of clang 3.8 from steam-runtime. Its behavior did not match any clang 3.8 version I got
+            # from old nixpkgs. We make this wrapper script to point it to clang 12, which seems to work OK.
+
+            cat << 'EOF' > $out/usr/bin/clang-3.8
+            #!/bin/bash
+            # We check for the parameters used in the first invokation, and add some of our own, which seems to sort an error out.
+            # TODO: more research on why this isn't needed for steam-runtime's clang
+            if [[ "$*" == "-std=c++14 -m64 -O3 -Wno-deprecated-writable-strings -I Game -o out/pch.hpp.pch Game/pch.hpp -I . -DYYLLVM" ]]; then
+              bash ${pkgs.llvmPackages_12.clangUseLLVM}/bin/clang -x c++-header "$@"
+              exit
+            fi
+            bash ${pkgs.llvmPackages_12.clangUseLLVM}/bin/clang "$@"
+            EOF
+
+            chmod +x $out/usr/bin/clang-3.8
+
+            # clang looks here (TODO check if this is still required)
+            # (looks in /usr/lib/x86_64-linux-gnu but lib links to lib64)
+            ln -s ../lib64 $out/usr/lib64/x86_64-linux-gnu
           '';
         };
 
@@ -143,8 +197,8 @@
 
             src = if use-archive then
               pkgs.fetchurl {
-                url =
-                  "https://github.com/Skirlez/gamemaker-ubuntu-archive/releases/download/${beta-version}/GameMaker-Beta-${beta-version}.deb";
+                url = 
+                  "https://github.com/Skirlez/gamemaker-ubuntu-archive/releases/download/v${beta-version}/GameMaker-Beta-${beta-version}.deb";
                 sha256 = deb-hash;
               }
             else
