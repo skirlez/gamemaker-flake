@@ -78,7 +78,7 @@
         '';
       };
 
-
+      debian-curl = (pkgs.callPackage ./debian/libcurl3-gnutls.nix { });
       makeGamemakerFhs = { name, runScript, extraInstallCommands ? "" }:
         pkgs.buildFHSEnv {
           name = name;
@@ -92,7 +92,7 @@
               libGL
               libGLU
               zlib
-              (callPackage ./debian/libcurl3-gnutls.nix { })
+              debian-curl
               ffmpeg_6
               fuse
               icu
@@ -138,10 +138,6 @@
               # yyc shits
               gnumake
               binutils
-
-              # clang wants it. I don't know why. Doesn't seem to cause issues with anything else
-              # TODO: maybe we can symlink the other curl so it finds that one instead.
-              curl
             ]);
           profile = ''
             export LD_LIBRARY_PATH=/lib
@@ -171,8 +167,10 @@
 
             cat << 'EOF' > $out/usr/bin/clang-3.8
             #!/bin/bash
-            # We check for the parameters used in the first invokation, and add some of our own, which seems to sort an error out.
+
+            # We check for the parameters used in the first invocation, and add some of our own, which seems to sort an error out.
             # TODO: more research on why this isn't needed for steam-runtime's clang
+
             if [[ "$*" == "-std=c++14 -m64 -O3 -Wno-deprecated-writable-strings -I Game -o out/pch.hpp.pch Game/pch.hpp -I . -DYYLLVM" ]]; then
               bash ${pkgs.llvmPackages_12.clangUseLLVM}/bin/clang -x c++-header "$@"
               exit
@@ -185,6 +183,9 @@
             # clang looks here (TODO check if this is still required)
             # (looks in /usr/lib/x86_64-linux-gnu but lib links to lib64)
             ln -s ../lib64 $out/usr/lib64/x86_64-linux-gnu
+
+            # clang wants curl
+            ln -s ${debian-curl}/lib/libcurl-gnutls.so.4 $out/usr/lib64/libcurl.so
           '';
         };
 
