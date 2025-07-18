@@ -21,7 +21,7 @@ def process(file_path, padding):
     global version
 
     beta_version_string_bytes = beta_version.encode('ascii')
-    version_string_bytes = version.encode('ascii') + b"\x00" * (len(version) - len(beta_version))
+    version_string_bytes = version.encode('ascii')
     if padding:
         version_string_bytes += b"\x00" * (len(beta_version) - len(version))
 
