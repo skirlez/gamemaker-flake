@@ -22,7 +22,7 @@ Package output list:
 ```
 Betas:
 ide-2023-400-0-324
-ide-2024-1400-0-841
+ide-2024-1400-0-849
 ide-latest-beta
 
 Converted:
@@ -73,6 +73,7 @@ If you want, you can also access the LTS runtimes by adding an entry with `https
 
 ## HELP!!!
 - If some of your project files from a Windows project refuse to load, try enabling "Case-Insensitive mode for project files" in Preferences > General Settings
+- If the font for code sucks ass, you can switch it in Preferences > Text Editors > Code Editor > Colours > Default. I believe "Droid Sans Mono" is the default font from the Windows version but I don't remember. 
 - If you can't see any of your system fonts, try enabling `fonts.fontDir.enable`.
 
 ## TODO
