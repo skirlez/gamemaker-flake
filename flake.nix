@@ -186,6 +186,8 @@
 
             # clang wants curl
             ln -s ${debian-curl}/lib/libcurl-gnutls.so.4 $out/usr/lib64/libcurl.so
+
+            ln -s /run/current-system/sw/share/X11/fonts $out/usr/share/fonts
           '';
         };
 
@@ -266,7 +268,7 @@
             src = if use-archive then
               pkgs.fetchurl {
                 url =
-                  "https://github.com/Skirlez/gamemaker-ubuntu-archive/releases/download/${version}/GameMaker-Beta-${version}.deb";
+                  "https://github.com/Skirlez/gamemaker-ubuntu-archive/releases/download/v${version}/GameMaker-Beta-${version}.deb";
                 sha256 = deb-hash;
               }
             else
@@ -366,9 +368,9 @@
            version = "2024.13.1.193"; beta-version = "2024.1300.0.785"; deb-hash="1kygsajq3jgsjfrwsqhy8ss9r3696p4yag86qlrqdfr4kjrjdgdh"; use-archive=false;  }
          ).env;
       */
-      ide-2024-1400-0-841 = (makeGamemakerPackage {
-        version = "2024.1400.0.841";
-        deb-hash = "0d0yrvpfhxhz1492q5j0a58y99ks6sbzdw4fv9qqmj8iml0c6hi9";
+      ide-2024-1400-0-849 = (makeGamemakerPackage {
+        version = "2024.1400.0.849";
+        deb-hash = "sha256-RprxCDhJjBOGvbtwnhiTjTJwjJsmVDHrrxPBcwtEuV4=";
         use-archive = false;
       }).env;
 
@@ -377,7 +379,7 @@
 
       packages.x86_64-linux = {
         #ide-latest = ide-2024-13-1-193;
-        ide-latest-beta = ide-2024-1400-0-841;
+        ide-latest-beta = ide-2024-1400-0-849;
 
         inherit ide-2023-400-0-324;
         inherit ide-2023-4-0-84;
@@ -385,7 +387,7 @@
         #inherit ide-2024-1300-0-785;
         #inherit ide-2024-13-1-193;
 
-        inherit ide-2024-1400-0-841;
+        inherit ide-2024-1400-0-849;
       };
 
     };

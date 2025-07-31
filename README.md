@@ -71,8 +71,9 @@ Fill the left field with whatever you want, and the right field with `https://gm
 There should now be a new entry under Runtime Feeds for stable runtimes. If you don't see any runtimes inside of it, make sure to press the refresh icon.
 If you want, you can also access the LTS runtimes by adding an entry with `https://gms.yoyogames.com/Zeus-Runtime-LTS.rss`
 
-## Common Issue You May Have Unrelated To Nix I Thought I Should Include
-If some of your project files from a Windows project refuse to load, try enabling "Case-Insensitive mode for project files" in Preferences > General Settings
+## HELP!!!
+- If some of your project files from a Windows project refuse to load, try enabling "Case-Insensitive mode for project files" in Preferences > General Settings
+- If you can't see any of your system fonts, try enabling `fonts.fontDir.enable`.
 
 ## TODO
 - I don't think you're meant to package linuxdeploy like that. It'd be great if it used pkgs.appimageTools.wrapType2 like appimagetool, but that doesn't seem to work.
