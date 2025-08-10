@@ -52,7 +52,7 @@ The use case here is that the version it saves to the `.yyp` is the non-Beta ver
 
 ...
 
-(There currently aren't any versions that are missing an equivalent Internal-Normal build...)
+(There currently aren't any versions that are missing an equivalent Internal-Normal build... so there are no converted packages as of now...)
 
 ## Usage
 ### Adding an IDE package to systemPackages (at least how I do it)
@@ -109,10 +109,10 @@ If you want, you can also access the LTS runtimes by adding an entry with `https
 
 
 ## License
-The `debian` folder contains code from https://github.com/MichailiK/yoyo-games-runner-nix, which has no stated license, so
-I will not be resolving that ambiguity.
 
-Any other code file is licensed under the AGPLv3 license.
+This flake is licensed under the AGPLv3 license.
+
+The `debian` folder contains code from https://github.com/MichailiK/yoyo-games-runner-nix, which is licensed under the Apache License 2.0 (Compatible with AGPLv3, original license available in that folder)
 
 ## Contributing
 Please contribute
