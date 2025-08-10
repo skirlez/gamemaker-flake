@@ -21,16 +21,34 @@ So I'm leaving this warning here. By using any of the outputs you are installing
 Package output list:
 ```
 Betas:
-ide-2023-400-0-324
-ide-2024-1400-0-849
 ide-latest-beta
+ide-2024-1400-0-849
+ide-2023-400-0-324
+
+Internal-Normal:
+ide-latest
+ide-2024-13-0-190
+ide-2023-11-1-129
+ide-2023-8-2-108
+ide-2023-4-0-84
 
 Converted:
-ide-2023-4-0-84
+None
 ```
+### Internal-Normal packages
+GameMaker does not actually have non-Beta versions for their Ubuntu IDE, but these builds without Beta branding exist or used to exist on their servers.
+It should be noted you're putting your project in the exact same risk as using a Beta IDE version, by using these versions. Always use source control!
+
+I happened to have more of these downloaded and archived than normal Betas.
+
 ### Converted packages
-Packages like `ide-2023-4-0-84` are some Beta version converted using a script to use non-Beta branding (but are otherwise identical).
+For versions without an Internal-Normal build archived, there is a conversion script in this repository (`convert-beta-to-regular.py`). They still differ from those builds,
+most importantly the folders it uses for configurations are named `GameMakerStudio2-Beta` instead of `GameMakerStudio2`.
 The use case here is that the version it saves to the `.yyp` is the non-Beta version as well. Use them if you care about that, or if you like the normal branding more.
+
+...
+
+(There currently aren't any versions that are missing an equivalent Internal-Normal build...)
 
 ## Usage
 ### Adding an IDE package to systemPackages (at least how I do it)
@@ -63,7 +81,7 @@ or clone the project and run this in its folder:
 nix develop
 ```
 
-### Using Stable runtimes
+### Using non-Beta runtimes with Beta IDE versions
 You may have to do this for older versions.
 
 Go to Preferences > Runtime Feeds, and click the Add button.
@@ -83,6 +101,8 @@ If you want, you can also access the LTS runtimes by adding an entry with `https
 - The online manual doesn't work (middle-clicking any function just takes you to the start page). Switching to the offline manual and downloading it when prompted does, though.
 - Audio playback in the IDE has crackles, for any file imported from a non .wav format
 - The IDE cannot kill the currently running game process when pressing stop/play/debug
+- GMRT (I just don't use it, so I haven't looked into it, but I want to get it working)
+
 
 ## License
 The `debian` folder contains code from https://github.com/MichailiK/yoyo-games-runner-nix, which has no stated license, so

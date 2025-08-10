@@ -79,7 +79,7 @@
       };
 
       debian-curl = (pkgs.callPackage ./debian/libcurl3-gnutls.nix { });
-      makeGamemakerFhs = { name, runScript, extraInstallCommands ? "" }:
+      makeGamemakerEnv = { name, runScript, extraInstallCommands ? "" }:
         pkgs.buildFHSEnv {
           name = name;
           targetPkgs = pkgs:
@@ -129,7 +129,7 @@
               # Seems to work without, but log errors about it missing
               procps # for pidof
 
-              # show in file manager
+              # make "show in file manager" work, and allow gamemaker to open your browser
               xdg-utils
 
               appimagetool
@@ -138,6 +138,9 @@
               # yyc shits
               gnumake
               binutils
+          
+              # I think I need to specify this relies on bash technically, because it has shell scripts that use bash, and their interpreter directive gets automatically changed
+              bash
             ]);
           profile = ''
             export LD_LIBRARY_PATH=/lib
@@ -159,7 +162,7 @@
 
             # gamemaker, by default, sets this path as the path to chroot to when building.
             # in order to make it easier for the user we just symlink it to the FHS env root, which is what we want
-            ln -s ../.. $out/opt/steam-runtime
+            ln -s .. $out/opt/steam-runtime
             
             # gamemaker expects clang-3.8.
             # Usually it gets a weird version of clang 3.8 from steam-runtime. Its behavior did not match any clang 3.8 version I got
@@ -236,7 +239,7 @@
             '';
           };
         in {
-          env = makeGamemakerFhs {
+          env = makeGamemakerEnv {
             name = "gamemaker-${version}";
             runScript = "${ide}/opt/GameMaker-Beta/GameMaker";
             extraInstallCommands = ''
@@ -259,8 +262,11 @@
           };
         };
 
-      makeGamemakerPackage = { version, deb-hash, use-archive ? true }:
+      makeGamemakerPackage = { version, deb-hash, use-archive ? true, internal-normal ? false }:
         let
+          beta-prefix = if internal-normal then "" else "Beta-";
+          beta-suffix = if internal-normal then "" else "-Beta";
+          display-name-insert = if internal-normal then "" else "Beta ";
           ide = pkgs.stdenv.mkDerivation rec {
             pname = "gamemaker-ide";
             inherit version;
@@ -268,12 +274,12 @@
             src = if use-archive then
               pkgs.fetchurl {
                 url =
-                  "https://github.com/Skirlez/gamemaker-ubuntu-archive/releases/download/v${version}/GameMaker-Beta-${version}.deb";
+                  "https://github.com/Skirlez/gamemaker-ubuntu-archive/releases/download/v${version}/GameMaker-${beta-prefix}${version}.deb";
                 sha256 = deb-hash;
               }
             else
               pkgs.fetchurl {
-                url = "https://gms.yoyogames.com/GameMaker-Beta-${version}.deb";
+                url = "https://gms.yoyogames.com/GameMaker-${beta-prefix}${version}.deb";
                 sha256 = deb-hash;
               };
 
@@ -281,8 +287,8 @@
             unpackPhase = ''
               mkdir ./unpacked
               dpkg -x $src ./unpacked
-              rm -rf ./unpacked/opt/GameMaker-Beta/armv7l
-              rm -rf ./unpacked/opt/GameMaker-Beta/aarch64
+              rm -rf ./unpacked/opt/GameMaker${beta-suffix}/armv7l
+              rm -rf ./unpacked/opt/GameMaker${beta-suffix}/aarch64
               rm -rf ./unpacked/usr/
             '';
             installPhase = ''
@@ -293,20 +299,20 @@
             '';
           };
         in {
-          env = makeGamemakerFhs {
+          env = makeGamemakerEnv {
             name = "gamemaker-${version}";
-            runScript = "${ide}/opt/GameMaker-Beta/GameMaker";
+            runScript = "${ide}/opt/GameMaker${beta-suffix}/GameMaker";
             extraInstallCommands = ''
               mkdir -p $out/share/applications
               mkdir -p $out/share/icons/hicolor/256x256/apps
 
-              cp ${ide}/opt/GameMaker-Beta/GameMaker.png $out/share/icons/hicolor/256x256/apps/gamemaker-${version}.png
+              cp ${ide}/opt/GameMaker${beta-suffix}/GameMaker.png $out/share/icons/hicolor/256x256/apps/gamemaker-${version}.png
 
               cat <<EOF > "$out/share/applications/gamemaker-${version}.desktop"
               [Desktop Entry]
               Exec=gamemaker-${version}
               Icon=gamemaker-${version}
-              Name=GameMaker Beta v${version}
+              Name=GameMaker ${display-name-insert}v${version}
               Categories=Development
               Comment=2D Game Engine IDE
               Type=Application
@@ -316,7 +322,7 @@
           };
         };
 
-      generic-gamemaker-fhs-env = makeGamemakerFhs {
+      generic-gamemaker-fhs-env = makeGamemakerEnv {
         name = "gamemaker-env";
         runScript = "bash";
       };
@@ -326,40 +332,32 @@
           exec ${generic-gamemaker-fhs-env}/bin/gamemaker-env
         '';
       };
-      /* # libraries required for gaming
-         gaming-libs = with pkgs; [
-           openssl_1_0
-           (pkgs.callPackage ./debian/libcurl3-gnutls.nix { })
-           xorg.libX11
-           xorg.libXext
-           xorg.libXrandr
-           xorg.libXxf86vm
-           e2fsprogs
-           libGL
-           libGLU
-           gmp
-           libgpg-error
-           libz
-           gcc.cc.lib #  libstdc++.so.6?
-           openal # not in ldd, but required for audio
-           ffmpeg_4.lib
-         ];
-         gaming = pkgs.mkShell {
-           buildInputs = gaming-libs;
-           shellHook = ''
-             export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath gaming-libs}
-           '';
-         };
-      */
 
       ide-2023-400-0-324 = (makeGamemakerPackage {
         version = "2023.400.0.324";
         deb-hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
       }).env;
-      ide-2023-4-0-84 = (makeGamemakerPackageFromBeta {
+      ide-2023-4-0-84 = (makeGamemakerPackage {
         version = "2023.4.0.84";
-        beta-version = "2023.400.0.324";
-        deb-hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
+        deb-hash = "024z7ybljd63np14ny3r55knr2cc2b3zlafl73yzk9xj1sa1ldr5";
+        internal-normal = true;
+      }).env;
+      ide-2023-8-2-108 = (makeGamemakerPackage {
+        version = "2023.8.2.108";
+        deb-hash = "0r64ipsky8azk9vqlxf31kc74af5hplm5n7n2k5z14cycnmiryk4";
+        internal-normal = true;
+      }).env;
+      ide-2023-11-1-129 = (makeGamemakerPackage {
+        version = "2023.11.1.129";
+        deb-hash = "16gqpczwr1jas4r95wc5a5qjqsb9clpshi66h2g6l89dgd722sr8";
+        internal-normal = true;
+      }).env;
+
+      ide-2024-13-0-190 = (makeGamemakerPackage {
+        version = "2024.13.0.190";
+        deb-hash = "0j987j79j1606ic8hy289pd18h32s5icbl6xy1clc5jbssxhzb4a";
+        use-archive = false;
+        internal-normal = true;
       }).env;
 
       /* as far as i can tell this version is straight up broken
@@ -373,21 +371,22 @@
         deb-hash = "sha256-RprxCDhJjBOGvbtwnhiTjTJwjJsmVDHrrxPBcwtEuV4=";
         use-archive = false;
       }).env;
+      
 
     in {
       devShell.x86_64-linux = dev;
 
       packages.x86_64-linux = {
-        #ide-latest = ide-2024-13-1-193;
+        ide-latest = ide-2024-13-0-190;
         ide-latest-beta = ide-2024-1400-0-849;
 
         inherit ide-2023-400-0-324;
-        inherit ide-2023-4-0-84;
-
-        #inherit ide-2024-1300-0-785;
-        #inherit ide-2024-13-1-193;
-
         inherit ide-2024-1400-0-849;
+        
+        inherit ide-2023-4-0-84;
+        inherit ide-2023-8-2-108;
+        inherit ide-2023-11-1-129;
+        inherit ide-2024-13-0-190;        
       };
 
     };
