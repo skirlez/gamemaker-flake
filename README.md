@@ -17,12 +17,15 @@ So I'm leaving this warning here. By using any of the outputs you are installing
 
 - All old packages pull from https://github.com/Skirlez/gamemaker-ubuntu-archive as GameMaker removed all of their old releases a while back.
 (If you have any `.deb` files of old releases, please open an issue there!)
+
+- In the event the `.deb` for a version is removed from GameMaker's servers, it will be uploaded to the archive and this flake will be updated to pull that version from there.
+
 ## Packages
 Package output list:
 ```
 Betas:
 ide-latest-beta
-ide-2024-1400-0-849
+ide-2024-1400-0-865
 ide-2023-400-0-324
 
 Internal-Normal:
@@ -35,6 +38,7 @@ ide-2023-4-0-84
 Converted:
 None
 ```
+
 ### Internal-Normal packages
 GameMaker does not actually have non-Beta versions for their Ubuntu IDE, but these builds without Beta branding exist or used to exist on their servers.
 It should be noted you're putting your project in the exact same risk as using a Beta IDE version, by using these versions. Always use source control!
@@ -101,7 +105,7 @@ If you want, you can also access the LTS runtimes by adding an entry with `https
 - The online manual doesn't work (middle-clicking any function just takes you to the start page). Switching to the offline manual and downloading it when prompted does, though.
 - Audio playback in the IDE has crackles, for any file imported from a non .wav format
 - The IDE cannot kill the currently running game process when pressing stop/play/debug
-- GMRT (I just don't use it, so I haven't looked into it, but I want to get it working)
+- GMRT support (As in, without setup. Maybe it could be made into a Nix derivation if how the GameMaker Package Manager downloads it is understood) (I have no idea if it's possible to run GMRT the intended way with this flake. I tried for a bit but it seemed to not be Fun)
 
 
 ## License

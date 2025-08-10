@@ -132,7 +132,6 @@
               # make "show in file manager" work, and allow gamemaker to open your browser
               xdg-utils
 
-              appimagetool
               linuxdeploy
 
               # yyc shits
@@ -169,7 +168,7 @@
             # from old nixpkgs. We make this wrapper script to point it to clang 12, which seems to work OK.
 
             cat << 'EOF' > $out/usr/bin/clang-3.8
-            #!/bin/bash
+            #!${pkgs.bash}/bin/bash
 
             # We check for the parameters used in the first invocation, and add some of our own, which seems to sort an error out.
             # TODO: more research on why this isn't needed for steam-runtime's clang
@@ -190,7 +189,18 @@
             # clang wants curl
             ln -s ${debian-curl}/lib/libcurl-gnutls.so.4 $out/usr/lib64/libcurl.so
 
+            # expose system fonts
             ln -s /run/current-system/sw/share/X11/fonts $out/usr/share/fonts
+
+            # starting from 2024.1400.0.865, the IDE attempts to avoid fusermount by running appimagetool with --appimage-extract-and-run. We have it wrapped with wrapType2, so we actually
+            # don't want it to pass that flag, since it's a normal binary now (and the argument gets passed to appimagetool, and it fails). So we have to create this script to discard that flag.
+            cat << 'EOF' > $out/usr/bin/appimagetool
+            #!${pkgs.bash}/bin/bash
+            [ "$1" = "--appimage-extract-and-run" ] && shift
+            exec ${appimagetool}/bin/appimagetool "$@"
+            EOF
+
+            chmod +x $out/usr/bin/appimagetool
           '';
         };
 
@@ -366,9 +376,9 @@
            version = "2024.13.1.193"; beta-version = "2024.1300.0.785"; deb-hash="1kygsajq3jgsjfrwsqhy8ss9r3696p4yag86qlrqdfr4kjrjdgdh"; use-archive=false;  }
          ).env;
       */
-      ide-2024-1400-0-849 = (makeGamemakerPackage {
-        version = "2024.1400.0.849";
-        deb-hash = "sha256-RprxCDhJjBOGvbtwnhiTjTJwjJsmVDHrrxPBcwtEuV4=";
+      ide-2024-1400-0-865 = (makeGamemakerPackage {
+        version = "2024.1400.0.865";
+        deb-hash = "0l8m16dr4i64nza66pcij4zfpalf9b4khb487fml749wxbjpx4ys";
         use-archive = false;
       }).env;
       
@@ -378,10 +388,10 @@
 
       packages.x86_64-linux = {
         ide-latest = ide-2024-13-0-190;
-        ide-latest-beta = ide-2024-1400-0-849;
+        ide-latest-beta = ide-2024-1400-0-865;
 
         inherit ide-2023-400-0-324;
-        inherit ide-2024-1400-0-849;
+        inherit ide-2024-1400-0-865;
         
         inherit ide-2023-4-0-84;
         inherit ide-2023-8-2-108;
