@@ -98,6 +98,22 @@ If you want, you can also access the LTS runtimes by adding an entry with `https
 - If the font for code sucks ass, you can switch it in Preferences > Text Editors > Code Editor > Colours > Default. I believe "Droid Sans Mono" is the default font from the Windows version but I don't remember. 
 - If you can't see any of your system fonts, try enabling `fonts.fontDir.enable`.
 
+## Technical Details
+(I'm only 90% confident in everything written in this section)
+
+GameMaker requires the [Steam Runtime 1 'scout' SDK](https://gitlab.steamos.cloud/steamrt/scout/sdk) to run games. The Steam runtime is basically a collection of libraries and utilities packaged in an FHS file structure (so it has a `/bin`, `/usr`, `/lib`, and so on).
+During compilation, GameMaker will invoke `chroot` to change the current root directory to the Steam runtime folder and perform the building process there, so it happens in a predictable environment (as doing that avoids relying on any libraries and utilities from your system, so it should be the same for everyone).
+
+I wanted to avoid having the packages download the entire Steam runtime, so instead, the packages have GameMaker run in its own FHS environment (using `pkgs.buildFHSEnv`) and they fetch just the libraries and utilities that are needed (which is much cleaner). This also makes it simple to make a devshell output in the same environment which GameMaker builds the games.
+
+(If you are thinking, "Isn't the Steam runtime already available in nixpkgs as `steam-run`"? It is, but seemingly does not have all the libraries needed, like any OpenSSL version smaller than 1.1. Perhaps it is a different version of the runtime. I don't care to check.)
+
+
+To avoid the `chroot`, in the FHS environment `/opt/steam-runtime` (the default directory GameMaker expects the Steam runtime to be in) is symlinked to `/`, making the `chroot` do nothing, and so GameMaker will perform the building in our FHS environment instead.
+
+You can still download and specify the Steam runtime location manually in Preferences > Platform Settings > Ubuntu, and everything will still work. 
+If you want to do that, the latest image (which GameMaker links in their Setting Up for Ubuntu guide) is available [here](https://repo.steampowered.com/steamrt-images-scout/snapshots/latest-steam-client-general-availability/com.valvesoftware.SteamRuntime.Sdk-amd64,i386-scout-sysroot.tar.gz).
+
 ## TODO
 - I don't think you're meant to package linuxdeploy like that. It'd be great if it used pkgs.appimageTools.wrapType2 like appimagetool, but that doesn't seem to work.
 - Make YYC use clang 3.8 and not clang 12. In general, clean up the way YYC compilation works.
@@ -105,14 +121,18 @@ If you want, you can also access the LTS runtimes by adding an entry with `https
 - The online manual doesn't work (middle-clicking any function just takes you to the start page). Switching to the offline manual and downloading it when prompted does, though.
 - Audio playback in the IDE has crackles, for any file imported from a non .wav format
 - The IDE cannot kill the currently running game process when pressing stop/play/debug
+- Have runtimes be managed by the flake 
+(Should be possible, would be cool. I imagine each IDE package would by default include the runtime package for Ubuntu matching that version, and you could override it with whatever you want)
 - GMRT support (As in, without setup. Maybe it could be made into a Nix derivation if how the GameMaker Package Manager downloads it is understood) (I have no idea if it's possible to run GMRT the intended way with this flake. I tried for a bit but it seemed to not be Fun)
 
 
 ## License
-
 This flake is licensed under the AGPLv3 license.
 
 The `debian` folder contains code from https://github.com/MichailiK/yoyo-games-runner-nix, which is licensed under the Apache License 2.0 (Compatible with AGPLv3, original license available in that folder)
+
+For the purpose of contributing to [Nixpkgs](https://github.com/NixOS/nixpkgs), you may alternatively use the MIT license (not counting the `debian` folder, not compatible).
+I would submit a GameMaker package myself, but the process seems annoying, and I doubt the package outputs here are written in a sufficiently correct way.
 
 ## Contributing
 Please contribute
