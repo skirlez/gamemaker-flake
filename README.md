@@ -131,7 +131,7 @@ This flake is licensed under the AGPLv3 license.
 
 The `debian` folder contains code from https://github.com/MichailiK/yoyo-games-runner-nix, which is licensed under the Apache License 2.0 (Compatible with AGPLv3, original license available in that folder)
 
-For the purpose of contributing to [Nixpkgs](https://github.com/NixOS/nixpkgs), you may alternatively use the MIT license (not counting the `debian` folder, not compatible).
+For the purpose of contributing to [Nixpkgs](https://github.com/NixOS/nixpkgs), you may use this code however you see fit, without attribution (not counting the `debian` folder, since it's not mine).
 I would submit a GameMaker package myself, but the process seems annoying, and I doubt the package outputs here are written in a sufficiently correct way.
 
 ## Contributing
