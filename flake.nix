@@ -111,7 +111,7 @@
               # For building games with zip
               zip
               unzip
-
+              
               # Required for running games (maybe)
               libz
               gmp
@@ -138,8 +138,14 @@
               gnumake
               binutils
           
-              # I think I need to specify this relies on bash technically, because it has shell scripts that use bash, and their interpreter directive gets automatically changed
+              # I think I need to specify this relies on bash technically, because it has shell scripts that use bash, 
+              # and their interpreter directive gets automatically changed to a nix store path
               bash
+
+              # wants these since at least ide-2024-1400-0-904
+              libpng
+              brotli
+
             ]);
           profile = ''
             export LD_LIBRARY_PATH=/lib
@@ -186,7 +192,7 @@
             # (looks in /usr/lib/x86_64-linux-gnu but lib links to lib64)
             ln -s ../lib64 $out/usr/lib64/x86_64-linux-gnu
 
-            # clang wants curl
+            # clang looks for this libcurl.so specifically
             ln -s ${debian-curl}/lib/libcurl-gnutls.so.4 $out/usr/lib64/libcurl.so
 
             # expose system fonts
@@ -377,10 +383,9 @@
         version = "2023.400.0.324";
         deb-hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
       }).env;
-
-      ide-2024-1400-0-884 = (makeGamemakerPackage {
-        version = "2024.1400.0.884";
-        deb-hash = "06wj15v9205zbhlv3i95421cbj8n2s1mcdmxmvpk4kvvsc1ja4g7";
+      ide-2024-1400-0-904 = (makeGamemakerPackage {
+        version = "2024.1400.0.904";
+        deb-hash = "sha256-JC2/LsyK8Z0k+HGX7TpB3yLlWqkN99WrrrBx62rQm50=";
         use-archive = false;
       }).env;
       
@@ -390,10 +395,10 @@
 
       packages.x86_64-linux = {
         ide-latest = ide-2024-13-0-190;
-        ide-latest-beta = ide-2024-1400-0-884;
+        ide-latest-beta = ide-2024-1400-0-904;
 
         inherit ide-2023-400-0-324;
-        inherit ide-2024-1400-0-884;
+        inherit ide-2024-1400-0-904;
         
         inherit ide-2023-4-0-84;
         inherit ide-2023-8-2-108;
