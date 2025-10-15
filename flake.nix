@@ -7,9 +7,11 @@
     # current nixpkgs does not package OpenSSL 1.0.x
     # major shoutouts to https://github.com/MichailiK/yoyo-games-runner-nix/blob/main/flake.nix
     nixpkgs-openssl.url = "github:NixOS/nixpkgs?ref=d1c3fea7ecbed758168787fe4e4a3157e52bc808";
+
+    nixpkgs-curl3.url = "github:NixOS/nixpkgs?ref=1715c13faa2632c0157435babda955fbc3e27cd7";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-openssl }:
+  outputs = { self, nixpkgs, nixpkgs-openssl, nixpkgs-curl3 }:
     let
       system = "x86_64-linux";
 
@@ -20,9 +22,13 @@
         # TODO: is this necessary? I can't include the package in my system packages otherwise.
         config.permittedInsecurePackages = [ "openssl-1.0.2u" ];
       };
+      pkgs-curl3 = import nixpkgs-curl3 {
+        inherit system;
+      };
 
       openssl_1_0 = pkgs-openssl.openssl_1_0_2;
-      
+      special-curl = pkgs-curl3.curlWithGnuTls;
+
       /* this went unused because it complains about glibc errors, and clang-12 seems to work.
       would probably be better if it was working
 
@@ -78,7 +84,7 @@
         '';
       };
 
-      debian-curl = (pkgs.callPackage ./debian/libcurl3-gnutls.nix { });
+      
       makeGamemakerEnv = { name, runScript, extraInstallCommands ? "" }:
         pkgs.buildFHSEnv {
           name = name;
@@ -92,7 +98,7 @@
               libGL
               libGLU
               zlib
-              debian-curl
+              special-curl
               ffmpeg_6
               fuse
               icu
@@ -157,8 +163,12 @@
             # is of opening a folder (kde-open for me). Not very Reproducible but you know
             export PATH="/bin:/usr/bin:/run/current-system/sw/bin/"
 
+
             # TODO check if this is still required for clang to behave
             unset TMPDIR
+
+            # errors about it at least on 2023.11
+            unset SOURCE_DATE_EPOCH
           '';
           runScript = runScript;
           extraInstallCommands = extraInstallCommands;
@@ -193,8 +203,9 @@
             ln -s ../lib64 $out/usr/lib64/x86_64-linux-gnu
 
             # clang looks for this libcurl.so specifically
-            ln -s ${debian-curl}/lib/libcurl-gnutls.so.4 $out/usr/lib64/libcurl.so
-
+            # (the previous curl we were using did not have a libcurl.so symlink, but we don't need to do this anymore)
+            # ln -s ${special-curl}/lib/libcurl-gnutls.so.4 $out/usr/lib64/libcurl.so
+            
             # expose system fonts
             ln -s /run/current-system/sw/share/X11/fonts $out/usr/share/fonts
 

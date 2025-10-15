@@ -16,6 +16,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-curl3": {
+      "locked": {
+        "lastModified": 1658174584,
+        "narHash": "sha256-gLWmjLdk43pjagKnjOI/CgjKEVFgcOLNL0E0Kw7KasI=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "1715c13faa2632c0157435babda955fbc3e27cd7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "1715c13faa2632c0157435babda955fbc3e27cd7",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs-openssl": {
       "locked": {
         "lastModified": 1650308445,
@@ -35,6 +51,7 @@
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
+        "nixpkgs-curl3": "nixpkgs-curl3",
         "nixpkgs-openssl": "nixpkgs-openssl"
       }
     }

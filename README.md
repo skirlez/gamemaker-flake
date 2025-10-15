@@ -108,15 +108,15 @@ I wanted to avoid having the packages download the entire Steam runtime, so inst
 
 (If you are thinking, "Isn't the Steam runtime already available in nixpkgs as `steam-run`"? It is, but seemingly does not have all the libraries needed, like any OpenSSL version smaller than 1.1. Perhaps it is a different version of the runtime. I don't care to check.)
 
-
 To avoid the `chroot`, in the FHS environment `/opt/steam-runtime` (the default directory GameMaker expects the Steam runtime to be in) is symlinked to `/`, making the `chroot` do nothing, and so GameMaker will perform the building in our FHS environment instead.
 
-You can still download and specify the Steam runtime location manually in Preferences > Platform Settings > Ubuntu, and everything will still work. 
+You can still download and specify the Steam runtime location manually in Preferences > Platform Settings > Ubuntu, and everything will still work.
 If you want to do that, the latest image (which GameMaker links in their Setting Up for Ubuntu guide) is available [here](https://repo.steampowered.com/steamrt-images-scout/snapshots/latest-steam-client-general-availability/com.valvesoftware.SteamRuntime.Sdk-amd64,i386-scout-sysroot.tar.gz).
 
 ## TODO
 - I don't think you're meant to package linuxdeploy like that. It'd be great if it used pkgs.appimageTools.wrapType2 like appimagetool, but that doesn't seem to work.
 - Have all packages reuse the same FHS environment. If that's not possible/unideal, there are a few libraries only needed for some versions but not others, and those should only be included when necessary
+- The version of libcurl GameMaker wants is weird. Currently with the one in the flake, its binary won't even run for me, but the library provided with that package seems to work. Should probably figure out what's going on there.
 - Make YYC use clang 3.8 and not clang 12. In general, clean up the way YYC compilation works.
 - Actually, clean up the entire thing.
 - The online manual doesn't work (middle-clicking any function just takes you to the start page). Switching to the offline manual and downloading it when prompted does, though.
@@ -130,9 +130,7 @@ If you want to do that, the latest image (which GameMaker links in their Setting
 ## License
 This flake is licensed under the AGPLv3 license.
 
-The `debian` folder contains code from https://github.com/MichailiK/yoyo-games-runner-nix, which is licensed under the Apache License 2.0 (Compatible with AGPLv3, original license available in that folder)
-
-For the purpose of contributing to [Nixpkgs](https://github.com/NixOS/nixpkgs), you may use this code however you see fit, without attribution (not counting the `debian` folder, since it's not mine).
+For the purpose of contributing to [Nixpkgs](https://github.com/NixOS/nixpkgs), you may use this code however you see fit, without attribution.
 I would submit a GameMaker package myself, but the process seems annoying, and I doubt the package outputs here are written in a sufficiently correct way.
 
 ## Contributing
