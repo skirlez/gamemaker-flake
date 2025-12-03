@@ -3,6 +3,7 @@ A Nix flake for GameMaker, and for playing/building GameMaker games.
 This flake has:
 - Package outputs for different IDE versions
 - A shell in the same environment used for the IDE, so you can play/build games
+- A more lightweight shell that can run Igor for building from the terminal
 - Support for VM/YYC building, with no setup required!
 
 This flake only targets x86_64-linux for now. If you want to add support for your platform, See 
@@ -25,7 +26,7 @@ Package output list:
 ```
 Betas:
 ide-latest-beta
-ide-2024-1400-0-911
+ide-2024-1400-2-940
 ide-2023-400-0-324
 
 Internal-Normal:
@@ -83,6 +84,16 @@ nix develop github:Skirlez/gamemaker-flake
 or clone the project and run this in its folder:
 ```
 nix develop
+```
+
+### Accessing the Igor environment shell
+Run:
+```
+nix develop github:Skirlez/gamemaker-flake#devShells.x86_64-linux.igor
+```
+or clone the project and run this in its folder:
+```
+nix develop #devShells.x86_64-linux.igor
 ```
 
 ### Using non-Beta runtimes with Beta IDE versions

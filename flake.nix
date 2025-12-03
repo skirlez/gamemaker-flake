@@ -360,6 +360,34 @@
         '';
       };
 
+      
+      igor-fhs-env = pkgs.buildFHSEnv {
+        name = "igor-env";
+        targetPkgs = pkgs:
+          (with pkgs; [
+              bash
+              icu
+              openssl
+              unzip
+              zip
+          ]);
+        profile = ''
+          export LD_LIBRARY_PATH=/lib
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib/x86_64-linux-gnu
+
+          export PATH="/bin:/usr/bin:/run/current-system/sw/bin/"
+        '';
+      };
+
+
+      igor = pkgs.mkShell {
+        shellHook = ''
+          exec ${igor-fhs-env}/bin/igor-env
+        '';
+      };
+
 
       ide-2023-4-0-84 = (makeGamemakerPackage {
         version = "2023.4.0.84";
@@ -394,22 +422,27 @@
         version = "2023.400.0.324";
         deb-hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
       }).env;
-      ide-2024-1400-0-911 = (makeGamemakerPackage {
-        version = "2024.1400.0.911";
-        deb-hash = "sha256-fLeApz4pNzbJc9UKf4QVWgCerSIQrqWtgczbeN9/nPs=";
+      ide-2024-1400-2-940 = (makeGamemakerPackage {
+        version = "2024.1400.2.940";
+        deb-hash = "sha256-bDGlI22HstHyfBbt+v4Ej6AoHAPAc8n529XVedcIFF8=";
         use-archive = false;
       }).env;
       
 
     in {
-      devShell.x86_64-linux = dev;
+      devShells.x86_64-linux = {
+        default = dev;
+        igor = igor;
+      };
 
       packages.x86_64-linux = {
+        default = ide-2024-1400-2-940;
+
         ide-latest = ide-2024-13-0-190;
-        ide-latest-beta = ide-2024-1400-0-911;
+        ide-latest-beta = ide-2024-1400-2-940;
 
         inherit ide-2023-400-0-324;
-        inherit ide-2024-1400-0-911;
+        inherit ide-2024-1400-2-940;
         
         inherit ide-2023-4-0-84;
         inherit ide-2023-8-2-108;
