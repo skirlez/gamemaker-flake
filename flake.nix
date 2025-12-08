@@ -368,6 +368,8 @@
               bash
               icu
               openssl
+              ffmpeg
+              zlib
               unzip
               zip
           ]);
