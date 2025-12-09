@@ -414,11 +414,17 @@
         internal-normal = true;
       }).env;
 
+      ide-2024-13-1-193 = (makeGamemakerPackage {
+        version = "2024.13.1.193";
+        deb-hash = "sha256-Vjflzn6r5Quy+NldjGw/ZXiNyNeDpj7+FjD0i/FDG/s=";
+        use-archive = true;
+        internal-normal = true;
+      }).env;
+
+
       /* as far as i can tell this version is straight up broken
          ide-2024-1300-0-785 = (makeGamemakerPackage { version = "2024.1300.0.785"; deb-hash="1kygsajq3jgsjfrwsqhy8ss9r3696p4yag86qlrqdfr4kjrjdgdh"; use-archive=false; }).env;
-         ide-2024-13-1-193 = (makeGamemakerPackageFromBeta {
-           version = "2024.13.1.193"; beta-version = "2024.1300.0.785"; deb-hash="1kygsajq3jgsjfrwsqhy8ss9r3696p4yag86qlrqdfr4kjrjdgdh"; use-archive=false;  }
-         ).env;
+
       */
       ide-2023-400-0-324 = (makeGamemakerPackage {
         version = "2023.400.0.324";
@@ -440,7 +446,7 @@
       packages.x86_64-linux = {
         default = ide-2024-1400-2-940;
 
-        ide-latest = ide-2024-13-0-190;
+        ide-latest = ide-2024-13-1-193;
         ide-latest-beta = ide-2024-1400-2-940;
 
         inherit ide-2023-400-0-324;
@@ -449,8 +455,8 @@
         inherit ide-2023-4-0-84;
         inherit ide-2023-8-2-108;
         inherit ide-2023-11-1-129;
-        inherit ide-2024-13-0-190;        
+        inherit ide-2024-13-0-190;
+        inherit ide-2024-13-1-193;
       };
-
     };
 }
