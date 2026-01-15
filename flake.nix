@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    
+
     # current nixpkgs does not package OpenSSL 1.0.x
     # major shoutouts to https://github.com/MichailiK/yoyo-games-runner-nix/blob/main/flake.nix
     nixpkgs-openssl.url = "github:NixOS/nixpkgs?ref=d1c3fea7ecbed758168787fe4e4a3157e52bc808";
@@ -33,17 +33,17 @@
       would probably be better if it was working
 
       # major shoutouts to https://lazamar.co.uk/nix-versions/
-      # this can't be done like the other nixpkgs because flake.nix doesn't exist yet on the root of the repository 
+      # this can't be done like the other nixpkgs because flake.nix doesn't exist yet on the root of the repository
       # (i'm theorizing, but that's what the error said)
-      pkgs-clang = import (builtins.fetchGit {               
-        name = "nixpkgs-with-clang-38";                                             
-        url = "https://github.com/NixOS/nixpkgs/";                       
-        ref = "refs/heads/nixpkgs-unstable";                     
-        rev = "0eddd4230678fc2c880c60b2fe530387db8798ac";       
+      pkgs-clang = import (builtins.fetchGit {
+        name = "nixpkgs-with-clang-38";
+        url = "https://github.com/NixOS/nixpkgs/";
+        ref = "refs/heads/nixpkgs-unstable";
+        rev = "0eddd4230678fc2c880c60b2fe530387db8798ac";
       }) { inherit system; };
       clang_38 = pkgs-clang.clang_38;
 
-      
+
       */
 
       appimagetool = pkgs.appimageTools.wrapType2 {
@@ -84,7 +84,7 @@
         '';
       };
 
-      
+
       makeGamemakerEnv = { name, runScript, extraInstallCommands ? "" }:
         pkgs.buildFHSEnv {
           name = name;
@@ -117,14 +117,14 @@
               # For building games with zip
               zip
               unzip
-              
+
               # Required for running games (maybe)
               libz
               gmp
               gcc.cc.lib
               xorg.libXext
               xorg.libXrandr
-              
+
               e2fsprogs
               libgpg-error
               ffmpeg_4.lib
@@ -143,8 +143,8 @@
               # yyc shits
               gnumake
               binutils
-          
-              # I think I need to specify this relies on bash technically, because it has shell scripts that use bash, 
+
+              # I think I need to specify this relies on bash technically, because it has shell scripts that use bash,
               # and their interpreter directive gets automatically changed to a nix store path
               bash
 
@@ -178,7 +178,7 @@
             # gamemaker, by default, sets this path as the path to chroot to when building.
             # in order to make it easier for the user we just symlink it to the FHS env root, which is what we want
             ln -s .. $out/opt/steam-runtime
-            
+
             # gamemaker expects clang-3.8.
             # Usually it gets a weird version of clang 3.8 from steam-runtime. Its behavior did not match any clang 3.8 version I got
             # from old nixpkgs. We make this wrapper script to point it to clang 12, which seems to work OK.
@@ -205,7 +205,7 @@
             # clang looks for this libcurl.so specifically
             # (the previous curl we were using did not have a libcurl.so symlink, but we don't need to do this anymore)
             # ln -s ${special-curl}/lib/libcurl-gnutls.so.4 $out/usr/lib64/libcurl.so
-            
+
             # expose system fonts
             ln -s /run/current-system/sw/share/X11/fonts $out/usr/share/fonts
 
@@ -230,7 +230,7 @@
 
             src = if use-archive then
               pkgs.fetchurl {
-                url = 
+                url =
                   "https://github.com/Skirlez/gamemaker-ubuntu-archive/releases/download/v${beta-version}/GameMaker-Beta-${beta-version}.deb";
                 sha256 = deb-hash;
               }
@@ -360,7 +360,7 @@
         '';
       };
 
-      
+
       igor-fhs-env = pkgs.buildFHSEnv {
         name = "igor-env";
         targetPkgs = pkgs:
@@ -373,14 +373,6 @@
               unzip
               zip
           ]);
-        profile = ''
-          export LD_LIBRARY_PATH=/lib
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib/x86_64-linux-gnu
-
-          export PATH="/bin:/usr/bin:/run/current-system/sw/bin/"
-        '';
       };
 
 
@@ -435,7 +427,7 @@
         deb-hash = "sha256-bDGlI22HstHyfBbt+v4Ej6AoHAPAc8n529XVedcIFF8=";
         use-archive = false;
       }).env;
-      
+
 
     in {
       devShells.x86_64-linux = {
@@ -451,7 +443,7 @@
 
         inherit ide-2023-400-0-324;
         inherit ide-2024-1400-2-940;
-        
+
         inherit ide-2023-4-0-84;
         inherit ide-2023-8-2-108;
         inherit ide-2023-11-1-129;
