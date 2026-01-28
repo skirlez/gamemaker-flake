@@ -26,13 +26,12 @@ Package output list:
 ```
 Betas:
 ide-latest-beta
-ide-2024-1400-2-940
+ide-2024-1400-3-974
 ide-2023-400-0-324
 
 Internal-Normal:
 ide-latest
 ide-2024-13-1-193
-ide-2024-13-0-190
 ide-2023-11-1-129
 ide-2023-8-2-108
 ide-2023-4-0-84
