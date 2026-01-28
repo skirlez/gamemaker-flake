@@ -16,7 +16,7 @@ Please see https://github.com/MichailiK/yoyo-games-runner-nix - without which th
 I couldn't set it up in a way where you explicitly add it to `nixpkgs.config.permittedInsecurePackages` - instead the flake doesn't require you to do anything.
 So I'm leaving this warning here. By using any of the outputs you are installing this insecure package.
 
-- All old packages pull from https://github.com/Skirlez/gamemaker-ubuntu-archive as GameMaker removed all of their old releases a while back.
+- All old packages pull from https://github.com/skirlez/gamemaker-ubuntu-archive as GameMaker removed all of their old releases a while back.
 (If you have any `.deb` files of old releases, please open an issue there!)
 
 - In the event the `.deb` for a version is removed from GameMaker's servers, it will be uploaded to the archive and this flake will be updated to pull that version from there.
@@ -60,7 +60,7 @@ The use case here is that the version it saves to the `.yyp` is the non-Beta ver
 at the very start of the configuration.nix file, add:
 ```nix
 let
-  gamemaker-flake = (builtins.getFlake "github:Skirlez/gamemaker-flake");
+  gamemaker-flake = (builtins.getFlake "github:skirlez/gamemaker-flake");
 in
 ```
 or clone the project and add
@@ -79,7 +79,7 @@ environment.systemPackages = with pkgs; [
 ### Accessing the GameMaker environment shell
 Run:
 ```
-nix develop github:Skirlez/gamemaker-flake
+nix develop github:skirlez/gamemaker-flake
 ```
 or clone the project and run this in its folder:
 ```
@@ -89,11 +89,11 @@ nix develop
 ### Accessing the Igor environment shell
 Run:
 ```
-nix develop github:Skirlez/gamemaker-flake#devShells.x86_64-linux.igor
+nix develop github:skirlez/gamemaker-flake#igor
 ```
 or clone the project and run this in its folder:
 ```
-nix develop #devShells.x86_64-linux.igor
+nix develop .#igor
 ```
 
 ### Using non-Beta runtimes with Beta IDE versions
@@ -107,7 +107,7 @@ If you want, you can also access the LTS runtimes by adding an entry with `https
 ## HELP!!!
 - If some of your project files from a Windows project refuse to load, try enabling "Case-Insensitive mode for project files" in Preferences > General Settings
 - If the font for code sucks ass, you can switch it in Preferences > Text Editors > Code Editor > Colours > Default. I believe "Droid Sans Mono" is the default font from the Windows version but I don't remember. 
-- If you can't see any of your system fonts, try enabling `fonts.fontDir.enable`.
+- If you can't see any of your system fonts and you're on NixOS, try enabling `fonts.fontDir.enable`.
 
 ## Technical Details
 (I'm only 90% confident in everything written in this section)

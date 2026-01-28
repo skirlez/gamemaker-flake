@@ -408,7 +408,6 @@
 
       /* as far as i can tell this version is straight up broken
          ide-2024-1300-0-785 = (makeGamemakerPackage { version = "2024.1300.0.785"; deb-hash="1kygsajq3jgsjfrwsqhy8ss9r3696p4yag86qlrqdfr4kjrjdgdh"; use-archive=false; }).env;
-
       */
       ide-2023-400-0-324 = (makeGamemakerPackage {
         version = "2023.400.0.324";
