@@ -2,7 +2,7 @@
 A Nix flake for GameMaker, and for playing/building GameMaker games.
 This flake has:
 - Package outputs for different IDE versions
-- A shell in the same environment used for the IDE, so you can play/build games
+- A shell in the same environment used for the IDE, so you can run games
 - A more lightweight shell that can run Igor for building from the terminal
 - Support for VM/YYC building, with no setup required!
 
@@ -26,7 +26,7 @@ Package output list:
 ```
 Betas:
 ide-latest-beta
-ide-2024-1400-3-974
+ide-2024-1400-4-986
 ide-2023-400-0-324
 
 Internal-Normal:
@@ -128,8 +128,6 @@ If you want to do that, the latest image (which GameMaker links in their Setting
 - I don't think you're meant to package linuxdeploy like that. It'd be great if it used pkgs.appimageTools.wrapType2 like appimagetool, but that doesn't seem to work.
 - Have all packages reuse the same FHS environment. If that's not possible/unideal, there are a few libraries only needed for some versions but not others, and those should only be included when necessary
 - The version of libcurl GameMaker wants is weird. Currently with the one in the flake, its binary won't even run for me, but the library provided with that package seems to work. Should probably figure out what's going on there.
-- Make YYC use clang 3.8 and not clang 12. In general, clean up the way YYC compilation works.
-- Actually, clean up the entire thing.
 - The online manual doesn't work (middle-clicking any function just takes you to the start page). Switching to the offline manual and downloading it when prompted does, though.
 - Audio playback in the IDE has crackles, for any file imported from a non .wav format
 - The IDE cannot kill the currently running game process when pressing stop/play/debug

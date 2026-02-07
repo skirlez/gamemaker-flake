@@ -29,22 +29,8 @@
       openssl_1_0 = pkgs-openssl.openssl_1_0_2;
       special-curl = pkgs-curl3.curlWithGnuTls;
 
-      /* this went unused because it complains about glibc errors, and clang-12 seems to work.
-      would probably be better if it was working
+      yyc-clang = pkgs.llvmPackages.clangUseLLVM;
 
-      # major shoutouts to https://lazamar.co.uk/nix-versions/
-      # this can't be done like the other nixpkgs because flake.nix doesn't exist yet on the root of the repository
-      # (i'm theorizing, but that's what the error said)
-      pkgs-clang = import (builtins.fetchGit {
-        name = "nixpkgs-with-clang-38";
-        url = "https://github.com/NixOS/nixpkgs/";
-        ref = "refs/heads/nixpkgs-unstable";
-        rev = "0eddd4230678fc2c880c60b2fe530387db8798ac";
-      }) { inherit system; };
-      clang_38 = pkgs-clang.clang_38;
-
-
-      */
 
       appimagetool = pkgs.appimageTools.wrapType2 {
         pname = "appimagetool";
@@ -84,6 +70,17 @@
         '';
       };
 
+      # packages required to use igor
+      igorPackages = (with pkgs; [
+        bash
+        icu
+        openssl
+        ffmpeg
+        zlib
+        unzip
+        zip
+      ]);
+
 
       makeGamemakerEnv = { name, runScript, extraInstallCommands ? "" }:
         pkgs.buildFHSEnv {
@@ -97,12 +94,10 @@
               openal
               libGL
               libGLU
-              zlib
-              special-curl
-              ffmpeg_6
               fuse
-              icu
 
+              special-curl
+              
               freetype
               gtk3
 
@@ -114,10 +109,6 @@
               util-linux
               file
 
-              # For building games with zip
-              zip
-              unzip
-
               # Required for running games (maybe)
               libz
               gmp
@@ -127,7 +118,6 @@
 
               e2fsprogs
               libgpg-error
-              ffmpeg_4.lib
 
               # required for yyc
               xorg.libXfixes
@@ -144,15 +134,10 @@
               gnumake
               binutils
 
-              # I think I need to specify this relies on bash technically, because it has shell scripts that use bash,
-              # and their interpreter directive gets automatically changed to a nix store path
-              bash
-
               # wants these since at least ide-2024-1400-0-904
               libpng
               brotli
-
-            ]);
+            ] ++ igorPackages);
           profile = ''
             export LD_LIBRARY_PATH=/lib
             export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib
@@ -181,19 +166,27 @@
 
             # gamemaker expects clang-3.8.
             # Usually it gets a weird version of clang 3.8 from steam-runtime. Its behavior did not match any clang 3.8 version I got
-            # from old nixpkgs. We make this wrapper script to point it to clang 12, which seems to work OK.
+            # from old nixpkgs. We make this wrapper script to point it to the latest clang instead, which seems to work OK.
 
             cat << 'EOF' > $out/usr/bin/clang-3.8
-            #!${pkgs.bash}/bin/bash
+              #!${pkgs.bash}/bin/bash
+              # -no-pie
+              # fix some error ide-2024-1400-4-986
+              # 
+              # -Wno-non-pod-varargs
+              # this warning made compilation stop
+                      
+              EXTRA="-no-pie -Wno-non-pod-varargs"
+              
 
-            # We check for the parameters used in the first invocation, and add some of our own, which seems to sort an error out.
-            # TODO: more research on why this isn't needed for steam-runtime's clang
-
-            if [[ "$*" == "-std=c++14 -m64 -O3 -Wno-deprecated-writable-strings -I Game -o out/pch.hpp.pch Game/pch.hpp -I . -DYYLLVM" ]]; then
-              bash ${pkgs.llvmPackages_12.clangUseLLVM}/bin/clang -x c++-header "$@"
-              exit
-            fi
-            bash ${pkgs.llvmPackages_12.clangUseLLVM}/bin/clang "$@"
+              # We check for the parameters used in the first invocation, and add some of our own, which seems to sort an error out.
+              # TODO: more research on why this isn't needed for steam-runtime's clang
+              if [[ "$*" == "-std=c++14 -m64 -O3 -Wno-deprecated-writable-strings -I Game -o out/pch.hpp.pch Game/pch.hpp -I . -DYYLLVM" ]]; then
+                bash ${yyc-clang}/bin/clang -x c++-header $EXTRA "$@"
+                exit
+              fi
+              echo $EXTRA
+              bash ${yyc-clang}/bin/clang $EXTRA "$@"
             EOF
 
             chmod +x $out/usr/bin/clang-3.8
@@ -202,91 +195,19 @@
             # (looks in /usr/lib/x86_64-linux-gnu but lib links to lib64)
             ln -s ../lib64 $out/usr/lib64/x86_64-linux-gnu
 
-            # clang looks for this libcurl.so specifically
-            # (the previous curl we were using did not have a libcurl.so symlink, but we don't need to do this anymore)
-            # ln -s ${special-curl}/lib/libcurl-gnutls.so.4 $out/usr/lib64/libcurl.so
-
             # expose system fonts
             ln -s /run/current-system/sw/share/X11/fonts $out/usr/share/fonts
 
             # starting from 2024.1400.0.865, the IDE attempts to avoid fusermount by running appimagetool with --appimage-extract-and-run. We have it wrapped with wrapType2, so we actually
             # don't want it to pass that flag, since it's a normal binary now (and the argument gets passed to appimagetool, and it fails). So we have to create this script to discard that flag.
             cat << 'EOF' > $out/usr/bin/appimagetool
-            #!${pkgs.bash}/bin/bash
-            [ "$1" = "--appimage-extract-and-run" ] && shift
-            exec ${appimagetool}/bin/appimagetool "$@"
+              #!${pkgs.bash}/bin/bash
+              [ "$1" = "--appimage-extract-and-run" ] && shift
+              exec ${appimagetool}/bin/appimagetool "$@"
             EOF
 
             chmod +x $out/usr/bin/appimagetool
           '';
-        };
-
-      makeGamemakerPackageFromBeta =
-        { version, beta-version, deb-hash, use-archive ? true }:
-        let
-          ide = pkgs.stdenv.mkDerivation rec {
-            pname = "gamemaker-ide";
-            inherit version;
-
-            src = if use-archive then
-              pkgs.fetchurl {
-                url =
-                  "https://github.com/Skirlez/gamemaker-ubuntu-archive/releases/download/v${beta-version}/GameMaker-Beta-${beta-version}.deb";
-                sha256 = deb-hash;
-              }
-            else
-              pkgs.fetchurl {
-                url =
-                  "https://gms.yoyogames.com/GameMaker-Beta-${beta-version}.deb";
-                sha256 = deb-hash;
-              };
-
-            nativeBuildInputs = [ pkgs.dpkg pkgs.python314 ];
-
-            conversion-script = ./convert-beta-to-regular.py;
-            regular-ico = ./assets/GameMaker.ico;
-            regular-png = ./assets/GameMaker.png;
-            splash-folder = ./assets/Splash;
-            unpackPhase = ''
-              mkdir ./unpacked
-              dpkg -x $src ./unpacked
-              rm -rf ./unpacked/opt/GameMaker-Beta/armv7l
-              rm -rf ./unpacked/opt/GameMaker-Beta/aarch64
-              rm -rf ./unpacked/usr/
-            '';
-            installPhase = ''
-              runHook preInstall
-              mkdir $out
-              cp -r ./unpacked/* $out/
-              python3 ${conversion-script} ${beta-version} ${version} $out
-              cp ${regular-ico} $out/opt/GameMaker-Beta/x86_64/GameMaker.ico
-              cp -r ${splash-folder}/* $out/opt/GameMaker-Beta/x86_64/Splash/
-              cp ${regular-png} $out/opt/GameMaker-Beta/GameMaker.png
-              runHook postInstall
-            '';
-          };
-        in {
-          env = makeGamemakerEnv {
-            name = "gamemaker-${version}";
-            runScript = "${ide}/opt/GameMaker-Beta/GameMaker";
-            extraInstallCommands = ''
-              mkdir -p $out/share/applications
-              mkdir -p $out/share/icons/hicolor/256x256/apps
-
-              cp ${ide}/opt/GameMaker-Beta/GameMaker.png $out/share/icons/hicolor/256x256/apps/gamemaker-${version}.png
-
-              cat <<EOF > "$out/share/applications/gamemaker-${version}.desktop"
-              [Desktop Entry]
-              Exec=gamemaker-${version}
-              Icon=gamemaker-${version}
-              Name=GameMaker v${version}
-              Categories=Development
-              Comment=2D Game Engine IDE
-              Type=Application
-              StartupWMClass=GameMaker
-              EOF
-            '';
-          };
         };
 
       makeGamemakerPackage = { version, deb-hash, use-archive ? true, internal-normal ? false }:
@@ -360,19 +281,9 @@
         '';
       };
 
-
       igor-fhs-env = pkgs.buildFHSEnv {
         name = "igor-env";
-        targetPkgs = pkgs:
-          (with pkgs; [
-              bash
-              icu
-              openssl
-              ffmpeg
-              zlib
-              unzip
-              zip
-          ]);
+        targetPkgs = pkgs: igorPackages;
       };
 
 
@@ -413,9 +324,9 @@
         version = "2023.400.0.324";
         deb-hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
       }).env;
-      ide-2024-1400-3-974 = (makeGamemakerPackage {
-        version = "2024.1400.3.974";
-        deb-hash = "sha256-7gQ9OEKBt2XdJ60nXEpWklM26ZZ52AYM1WAYZA9JGRg=";
+      ide-2024-1400-4-986 = (makeGamemakerPackage {
+        version = "2024.1400.4.986";
+        deb-hash = "sha256-LC/V58UDSc6RUgj42Aafnuoj4t6GV5jpf+/3gaF7WlM=";
         use-archive = false;
       }).env;
 
@@ -427,13 +338,13 @@
       };
 
       packages.x86_64-linux = {
-        default = ide-2024-1400-3-974;
+        default = ide-2024-1400-4-986;
 
         ide-latest = ide-2024-13-1-193;
-        ide-latest-beta = ide-2024-1400-3-974;
+        ide-latest-beta = ide-2024-1400-4-986;
 
         inherit ide-2023-400-0-324;
-        inherit ide-2024-1400-3-974;
+        inherit ide-2024-1400-4-986;
 
         inherit ide-2023-4-0-84;
         inherit ide-2023-8-2-108;
