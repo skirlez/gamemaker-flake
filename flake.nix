@@ -3,72 +3,20 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-
-    # current nixpkgs does not package OpenSSL 1.0.x
-    # major shoutouts to https://github.com/MichailiK/yoyo-games-runner-nix/blob/main/flake.nix
-    nixpkgs-openssl.url = "github:NixOS/nixpkgs?ref=d1c3fea7ecbed758168787fe4e4a3157e52bc808";
-
-    nixpkgs-curl3.url = "github:NixOS/nixpkgs?ref=1715c13faa2632c0157435babda955fbc3e27cd7";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-openssl, nixpkgs-curl3 }:
+  outputs = { self, nixpkgs }:
     let
       system = "x86_64-linux";
 
       pkgs = import nixpkgs { inherit system; };
 
-      pkgs-openssl = import nixpkgs-openssl {
-        inherit system;
-        # TODO: is this necessary? I can't include the package in my system packages otherwise.
-        config.permittedInsecurePackages = [ "openssl-1.0.2u" ];
-      };
-      pkgs-curl3 = import nixpkgs-curl3 {
-        inherit system;
-      };
-
-      openssl_1_0 = pkgs-openssl.openssl_1_0_2;
-      special-curl = pkgs-curl3.curlWithGnuTls;
-
+      openssl-1-0 = import ./openssl/openssl-1-0-2l-debian.nix { inherit pkgs; };
+      debian-curl = import ./curl/libcurl3-gnutls-debian.nix { inherit pkgs; };
+      linuxdeploy = import ./linuxdeploy/linuxdeploy.nix { inherit pkgs; };
+      appimagetool = import ./appimagetool/appimagetool.nix { inherit pkgs; };
       yyc-clang = pkgs.llvmPackages.clangUseLLVM;
 
-
-      appimagetool = pkgs.appimageTools.wrapType2 {
-        pname = "appimagetool";
-        version = "1.9.0";
-        src = pkgs.fetchurl {
-          url =
-            "https://github.com/AppImage/appimagetool/releases/download/1.9.0/appimagetool-x86_64.AppImage";
-          sha256 = "1lc3c38033392x5lnr1z4jmqx3fryfqczbv1bda6wzsc162xgza6";
-        };
-        extraPkgs = pkgs: with pkgs; [ file appstream gnupg ];
-      };
-
-      /* linuxdeploy = pkgs.appimageTools.wrapType2 {
-           pname = "linuxdeploy";
-           version = "1-alpha-20250213-2";
-           src = pkgs.fetchurl {
-             url = "https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20250213-2/linuxdeploy-x86_64.AppImage";
-             sha256 = "0ajjnk89zbgjwvbkfxm7cm9hwr32yi80vhv7ks0izwrymdwg4j26";
-           };
-           extraPkgs = pkgs: [ ];
-         };
-      */
-
-      linuxdeploy = pkgs.stdenv.mkDerivation {
-        name = "linuxdeploy";
-        version = "1-alpha-20250213-2";
-        src = pkgs.fetchurl {
-          url =
-            "https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20250213-2/linuxdeploy-x86_64.AppImage";
-          sha256 = "0ajjnk89zbgjwvbkfxm7cm9hwr32yi80vhv7ks0izwrymdwg4j26";
-        };
-        phases = [ "installPhase" ];
-        installPhase = ''
-          mkdir -p $out/bin
-          cp $src $out/bin/linuxdeploy
-          chmod +x $out/bin/linuxdeploy
-        '';
-      };
 
       # packages required to use igor
       igorPackages = (with pkgs; [
@@ -81,6 +29,17 @@
         zip
       ]);
 
+      # not yet working! hopefully I can make it work eventually
+      gmrtPackages = (with pkgs; [
+        dotnetCorePackages.runtime_8_0-bin
+        
+        SDL2
+        zstd
+        libselinux
+        libxcb
+        libxrender
+      ]);
+
 
       makeGamemakerEnv = { name, runScript, extraInstallCommands ? "" }:
         pkgs.buildFHSEnv {
@@ -89,14 +48,14 @@
             (with pkgs; [
               # https://gamemaker.zendesk.com/hc/en-us/articles/235186168-Setting-Up-For-Ubuntu
               openssh
-              openssl_1_0
               xorg.libXxf86vm
               openal
               libGL
               libGLU
               fuse
 
-              special-curl
+              openssl-1-0
+              debian-curl
               
               freetype
               gtk3
@@ -128,16 +87,22 @@
               # make "show in file manager" work, and allow gamemaker to open your browser
               xdg-utils
 
-              linuxdeploy
-
               # yyc shits
               gnumake
               binutils
 
+              # linuxdeploy wants it
+              patchelf
+              
+              # appimagetool wants it
+              squashfsTools
+              desktop-file-utils
+              zsync
+              	
               # wants these since at least ide-2024-1400-0-904
               libpng
               brotli
-            ] ++ igorPackages);
+            ] ++ igorPackages /*++ gmrtPackages*/);
           profile = ''
             export LD_LIBRARY_PATH=/lib
             export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib
@@ -148,12 +113,15 @@
             # is of opening a folder (kde-open for me). Not very Reproducible but you know
             export PATH="/bin:/usr/bin:/run/current-system/sw/bin/"
 
-
             # TODO check if this is still required for clang to behave
             unset TMPDIR
 
             # errors about it at least on 2023.11
             unset SOURCE_DATE_EPOCH
+
+            # GMRT needs the dotnet 8 runtime. Seems like it can find it with this unset,
+            # but users may have it set and make it look elsewhere instead which is bad
+            # unset DOTNET_ROOT
           '';
           runScript = runScript;
           extraInstallCommands = extraInstallCommands;
@@ -164,7 +132,7 @@
             # in order to make it easier for the user we just symlink it to the FHS env root, which is what we want
             ln -s .. $out/opt/steam-runtime
 
-            # gamemaker expects clang-3.8.
+            # gamemaker expects clang-3.8 to build for YYC.
             # Usually it gets a weird version of clang 3.8 from steam-runtime. Its behavior did not match any clang 3.8 version I got
             # from old nixpkgs. We make this wrapper script to point it to the latest clang instead, which seems to work OK.
 
@@ -207,6 +175,16 @@
             EOF
 
             chmod +x $out/usr/bin/appimagetool
+            
+            # same idea for linuxdeploy. the IDE runs --appimage-extract, then inserts the extracted FHS environment to PATH.
+            # it isn't an appimage for us, so when it tries doing that just exit, otherwise just run
+            cat << 'EOF' > $out/usr/bin/linuxdeploy
+              #!${pkgs.bash}/bin/bash
+              [ "$1" = "--appimage-extract" ] && exit
+              exec ${linuxdeploy}/bin/linuxdeploy "$@"
+            EOF
+            chmod +x $out/usr/bin/linuxdeploy
+            
           '';
         };
 
