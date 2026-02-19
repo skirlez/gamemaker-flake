@@ -3,6 +3,7 @@
 	pkgs,
 }: 
 let
+	# TODO: find the appropriate archive link(?)
 	debianPatchesSource = builtins.fetchTarball {
 		url = "http://deb.debian.org/debian/pool/main/c/curl/curl_7.88.1-10+deb12u14.debian.tar.xz";
 		sha256 = "sha256:0ha2mn84brjpiydxr7zl48ij0dv2mnz7piwgdbc4dcjns6rb78vx";
@@ -33,6 +34,8 @@ in
 		buildInputs = with pkgs; [
 			gnutls
 		];
+		
+		# grab only what we need
 		installPhase = ''
 			mkdir -p $out/lib
 			cp lib/.libs/libcurl.so $out/lib/libcurl-gnutls.so.4

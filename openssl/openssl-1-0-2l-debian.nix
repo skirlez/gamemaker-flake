@@ -27,7 +27,6 @@ pkgs.stdenv.mkDerivation {
     sha256 = "sha256-zgcZW2WedfTh20NVKGAHAGHxVqmLs3tnKxAbpuPd8ww=";
   };
   
-  # from nixpkgs. don't know what they do
   patches = debianPatches;
   nativeBuildInputs = [
     pkgs.perl
@@ -36,8 +35,9 @@ pkgs.stdenv.mkDerivation {
   
   # grab only what we need
   installPhase = ''
-     mkdir -p $out/lib
-    readelf -Ws libssl.so.1.0.0 | grep -i ssl
+    mkdir -p $out/lib
+    cp libcrypto.so.1.0.0 $out/lib/libcrypto.so
+    cp libssl.so.1.0.0 $out/lib/libssl.so
     cp libcrypto.so.1.0.0 $out/lib/libcrypto.so.1.0.0
     cp libssl.so.1.0.0 $out/lib/libssl.so.1.0.0
   '';

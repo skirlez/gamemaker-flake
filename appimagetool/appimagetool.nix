@@ -2,11 +2,7 @@
 {
   pkgs,
 }: 
-let
-  stdenv = pkgs.stdenv;
-  lib = pkgs.lib;
-in
-  stdenv.mkDerivation {
+  pkgs.stdenv.mkDerivation {
     pname = "appimagetool";
     version = "1.9.1";
     src = pkgs.fetchFromGitHub {

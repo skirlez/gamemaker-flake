@@ -3,14 +3,12 @@
   pkgs,
 }: 
 let
-  stdenv = pkgs.stdenv;
-  lib = pkgs.lib;
   excludelist = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/probonopd/AppImages/master/excludelist";
     sha256 = "sha256-UNsPiU80sWnEely8DBfbq2Hp7evKW8gmmh5qwb9L2tk=";
   };
 in
-  stdenv.mkDerivation {
+  pkgs.stdenv.mkDerivation {
     pname = "linuxdeploy";
     version = "1-alpha-20251107-1";
     src = pkgs.fetchFromGitHub {
@@ -29,7 +27,6 @@ in
       bash
       pkg-config
       cmake
-      wget
     ];
     buildInputs = with pkgs; [
       cimg

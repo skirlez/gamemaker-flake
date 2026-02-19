@@ -1,10 +1,8 @@
 {
   description = "A flake for the GameMaker IDE and GameMaker games";
 
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-  };
-
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  
   outputs = { self, nixpkgs }:
     let
       system = "x86_64-linux";
@@ -16,8 +14,7 @@
       linuxdeploy = import ./linuxdeploy/linuxdeploy.nix { inherit pkgs; };
       appimagetool = import ./appimagetool/appimagetool.nix { inherit pkgs; };
       yyc-clang = pkgs.llvmPackages.clangUseLLVM;
-
-
+      
       # packages required to use igor
       igorPackages = (with pkgs; [
         bash
@@ -48,21 +45,23 @@
             (with pkgs; [
               # https://gamemaker.zendesk.com/hc/en-us/articles/235186168-Setting-Up-For-Ubuntu
               openssh
-              xorg.libXxf86vm
+              libxxf86vm
               openal
               libGL
               libGLU
               fuse
-
+              
               openssl-1-0
               debian-curl
               
+              curl
+
               freetype
               gtk3
 
               libpulseaudio
-              xorg.libX11
-              xorg.libXi
+              libx11
+              libxi
 
               # Gamemaker wants unshare, file for build process
               util-linux
@@ -72,14 +71,14 @@
               libz
               gmp
               gcc.cc.lib
-              xorg.libXext
-              xorg.libXrandr
+              libxext
+              libxrandr
 
               e2fsprogs
               libgpg-error
 
               # required for yyc
-              xorg.libXfixes
+              libxfixes
 
               # Seems to work without, but log errors about it missing
               procps # for pidof
@@ -133,22 +132,23 @@
             ln -s .. $out/opt/steam-runtime
 
             # gamemaker expects clang-3.8 to build for YYC.
-            # Usually it gets a weird version of clang 3.8 from steam-runtime. Its behavior did not match any clang 3.8 version I got
-            # from old nixpkgs. We make this wrapper script to point it to the latest clang instead, which seems to work OK.
+            # Usually it gets a weird version of clang 3.8 from steam-runtime: https://repo.steampowered.com/steamrt-images-scout/snapshots/latest-public-stable/sources/
+            # TODO: We could probably build this version ourselves pulling patches from the debian archive.
+            # We make this wrapper script to point it to the latest clang instead, which seems to work, but as you can see below it requires a bit of a hack.
 
             cat << 'EOF' > $out/usr/bin/clang-3.8
               #!${pkgs.bash}/bin/bash
+               
+              # extra arguments:
               # -no-pie
-              # fix some error ide-2024-1400-4-986
+              # fixed some error ide-2024-1400-4-986
               # 
               # -Wno-non-pod-varargs
               # this warning made compilation stop
                       
               EXTRA="-no-pie -Wno-non-pod-varargs"
               
-
-              # We check for the parameters used in the first invocation, and add some of our own, which seems to sort an error out.
-              # TODO: more research on why this isn't needed for steam-runtime's clang
+              # I'm not sure why but sometimes gamemaker emits this exact list of parameters and it requires fixing up
               if [[ "$*" == "-std=c++14 -m64 -O3 -Wno-deprecated-writable-strings -I Game -o out/pch.hpp.pch Game/pch.hpp -I . -DYYLLVM" ]]; then
                 bash ${yyc-clang}/bin/clang -x c++-header $EXTRA "$@"
                 exit
@@ -156,11 +156,10 @@
               echo $EXTRA
               bash ${yyc-clang}/bin/clang $EXTRA "$@"
             EOF
-
             chmod +x $out/usr/bin/clang-3.8
 
-            # clang looks here (TODO check if this is still required)
-            # (looks in /usr/lib/x86_64-linux-gnu but lib links to lib64)
+            # clang looks here
+            # (it looks in /usr/lib/x86_64-linux-gnu but lib links to lib64)
             ln -s ../lib64 $out/usr/lib64/x86_64-linux-gnu
 
             # expose system fonts
@@ -302,9 +301,9 @@
         version = "2023.400.0.324";
         deb-hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
       }).env;
-      ide-2024-1400-4-986 = (makeGamemakerPackage {
-        version = "2024.1400.4.986";
-        deb-hash = "sha256-LC/V58UDSc6RUgj42Aafnuoj4t6GV5jpf+/3gaF7WlM=";
+      ide-2024-1400-4-999 = (makeGamemakerPackage {
+        version = "2024.1400.4.999";
+        deb-hash = "sha256-2hNh+Umf9XSWsoEAf4T8yb8tk4poQyuR7uujIK9yoAY=";
         use-archive = false;
       }).env;
 
@@ -316,13 +315,13 @@
       };
 
       packages.x86_64-linux = {
-        default = ide-2024-1400-4-986;
+        default = ide-2024-1400-4-999;
 
         ide-latest = ide-2024-13-1-193;
-        ide-latest-beta = ide-2024-1400-4-986;
+        ide-latest-beta = ide-2024-1400-4-999;
 
         inherit ide-2023-400-0-324;
-        inherit ide-2024-1400-4-986;
+        inherit ide-2024-1400-4-999;
 
         inherit ide-2023-4-0-84;
         inherit ide-2023-8-2-108;
