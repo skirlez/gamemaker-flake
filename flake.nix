@@ -43,7 +43,7 @@
           name = name;
           targetPkgs = pkgs:
             (with pkgs; [
-              # https://gamemaker.zendesk.com/hc/en-us/articles/235186168-Setting-Up-For-Ubuntu
+              # https://github.com/YoYoGames/GameMaker-Bugs/wiki/Ubuntu-GMS2
               openssh
               libxxf86vm
               openal
@@ -301,11 +301,6 @@
         version = "2023.400.0.324";
         deb-hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
       }).env;
-      ide-2024-1400-4-999 = (makeGamemakerPackage {
-        version = "2024.1400.4.999";
-        deb-hash = "sha256-2hNh+Umf9XSWsoEAf4T8yb8tk4poQyuR7uujIK9yoAY=";
-        use-archive = false;
-      }).env;
       ide-2024-1400-4-1003 = (makeGamemakerPackage {
         version = "2024.1400.4.1003";
         deb-hash = "sha256-MzSka9SjiWX9Fq0CSqRHsenbI84TCUYPH2uFAc6MtH8=";
@@ -327,7 +322,6 @@
         ide-latest-beta = ide-2024-1400-4-1003;
 
         inherit ide-2023-400-0-324;
-        inherit ide-2024-1400-4-999;
         inherit ide-2024-1400-4-1003;
 
         inherit ide-2023-4-0-84;

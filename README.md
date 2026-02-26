@@ -6,7 +6,7 @@ This flake has:
 - A more lightweight shell that can run Igor for building from the terminal
 - Support for VM/YYC building, with no setup required!
 
-This flake only targets x86_64-linux for now. If you want to add support for your platform, See 
+This flake only targets `x86_64-linux` for now. If you want to add support for your platform, See 
 [Contributing](#contributing)
 
 Please see https://github.com/MichailiK/yoyo-games-runner-nix - without which this flake would have been way worse.
@@ -26,7 +26,7 @@ Package output list:
 ```
 Betas:
 ide-latest-beta
-ide-2024-1400-4-999
+ide-2024-1400-4-1003
 ide-2023-400-0-324
 
 Internal-Normal:
@@ -116,12 +116,10 @@ During compilation, GameMaker will invoke `chroot` to change the current root di
 
 I wanted to avoid having the packages download the entire Steam runtime, so instead, the packages have GameMaker run in its own FHS environment (using `pkgs.buildFHSEnv`) and they fetch and build just the libraries and utilities that are needed (which is much cleaner).
 
-(If you are thinking, "Isn't the Steam runtime already available in nixpkgs as `steam-run`"? It is, but seemingly does not have all the libraries needed, like any OpenSSL version smaller than 1.1. Perhaps it is a different version of the runtime. I don't care to check.)
-
 To avoid the `chroot`, in the FHS environment `/opt/steam-runtime` (the default directory GameMaker expects the Steam runtime to be in) is symlinked to `/`, making the `chroot` do nothing, and so GameMaker will perform the building in our FHS environment instead.
 
 You can still download and specify the Steam runtime location manually in Preferences > Platform Settings > Ubuntu, and everything will still work.
-If you want to do that, the latest image (which GameMaker links in their Setting Up for Ubuntu guide) is available [here](https://repo.steampowered.com/steamrt-images-scout/snapshots/latest-steam-client-general-availability/com.valvesoftware.SteamRuntime.Sdk-amd64,i386-scout-sysroot.tar.gz).
+If you want to do that, the latest image (which GameMaker links in their [guide](https://github.com/YoYoGames/GameMaker-Bugs/wiki/Ubuntu-GMS2)) is available [here](https://repo.steampowered.com/steamrt-images-scout/snapshots/latest-steam-client-general-availability/com.valvesoftware.SteamRuntime.Sdk-amd64,i386-scout-sysroot.tar.gz).
 
 ## TODO
 - Have all packages reuse the same FHS environment. If that's not possible/unideal, there are a few libraries only needed for some versions but not others, and those should only be included when necessary
