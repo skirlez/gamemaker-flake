@@ -328,6 +328,7 @@
 
         inherit ide-2023-400-0-324;
         inherit ide-2024-1400-4-999;
+        inherit ide-2024-1400-4-1003;
 
         inherit ide-2023-4-0-84;
         inherit ide-2023-8-2-108;
