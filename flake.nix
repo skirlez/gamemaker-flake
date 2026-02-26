@@ -308,7 +308,7 @@
       }).env;
       ide-2024-1400-4-1003 = (makeGamemakerPackage {
         version = "2024.1400.4.1003";
-        deb-hash = "sha256-2hNh+Umf9XSWsoEAf4T8yb8tk4poQyuR7uujIK9yoAY=";
+        deb-hash = "sha256-MzSka9SjiWX9Fq0CSqRHsenbI84TCUYPH2uFAc6MtH8=";
         use-archive = false;
       }).env;
 
