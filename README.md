@@ -35,9 +35,6 @@ ide-2024-13-1-193
 ide-2023-11-1-129
 ide-2023-8-2-108
 ide-2023-4-0-84
-
-Converted:
-None
 ```
 
 ### Internal-Normal packages
@@ -46,14 +43,6 @@ It should be noted you're putting your project in the exact same risk as using a
 
 I happened to have more of these downloaded and archived than normal Betas.
 
-### Converted packages
-For versions without an Internal-Normal build archived, there is a conversion script in this repository (`convert-beta-to-regular.py`). They still differ from those builds,
-most importantly the folders it uses for configurations are named `GameMakerStudio2-Beta` instead of `GameMakerStudio2`.
-The use case here is that the version it saves to the `.yyp` is the non-Beta version as well. Use them if you care about that, or if you like the normal branding more.
-
-...
-
-(There currently aren't any versions that are missing an equivalent Internal-Normal build... so there are no converted packages as of now...)
 
 ## Usage
 ### Adding an IDE package to systemPackages (at least how I do it)
@@ -120,6 +109,8 @@ To avoid the `chroot`, in the FHS environment `/opt/steam-runtime` (the default 
 
 You can still download and specify the Steam runtime location manually in Preferences > Platform Settings > Ubuntu, and everything will still work.
 If you want to do that, the latest image (which GameMaker links in their [guide](https://github.com/YoYoGames/GameMaker-Bugs/wiki/Ubuntu-GMS2)) is available [here](https://repo.steampowered.com/steamrt-images-scout/snapshots/latest-steam-client-general-availability/com.valvesoftware.SteamRuntime.Sdk-amd64,i386-scout-sysroot.tar.gz).
+
+
 
 ## TODO
 - Have all packages reuse the same FHS environment. If that's not possible/unideal, there are a few libraries only needed for some versions but not others, and those should only be included when necessary
