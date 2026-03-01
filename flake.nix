@@ -63,6 +63,9 @@
               libx11
               libxi
 
+              # add zenity as fallback (https://github.com/YoYoGames/GameMaker-Bugs/issues/14146#issuecomment-3974129895)
+              zenity
+
               # Gamemaker wants unshare, file for build process
               util-linux
               file
