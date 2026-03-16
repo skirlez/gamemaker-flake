@@ -4,7 +4,7 @@ This flake has:
 - Package outputs for different IDE versions
 - A shell in the same environment used for the IDE, so you can run games
 - A more lightweight shell that can run Igor for building from the terminal
-- Support for VM/YYC building, with no setup required!
+- Support for VM and YYC building, with no setup required!
 
 This flake only targets `x86_64-linux` for now. If you want to add support for your platform, See 
 [Contributing](#contributing)
@@ -26,7 +26,7 @@ Package output list:
 ```
 Betas:
 ide-latest-beta
-ide-2024-1400-4-1003
+ide-2024-1400-4-1020
 ide-2023-400-0-324
 
 Internal-Normal:
