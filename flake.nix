@@ -304,9 +304,9 @@
         version = "2023.400.0.324";
         deb-hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
       }).env;
-      ide-2024-1400-4-1020 = (makeGamemakerPackage {
-        version = "2024.1400.4.1020";
-        deb-hash = "sha256-2oHP7QZ8EkCe02kdBS8BsqPU3axMLkbpOnhgRZ7ULv8=";
+      ide-2024-1400-4-1030 = (makeGamemakerPackage {
+        version = "2024.1400.4.1030";
+        deb-hash = "sha256-RWnQnG5Pe4FSMdIt/znUoT9jmTuhCm36wcNB5JXQPDI=";
         use-archive = false;
       }).env;
 
@@ -319,13 +319,13 @@
       };
 
       packages.x86_64-linux = {
-        default = ide-2024-1400-4-1020;
+        default = ide-2024-1400-4-1030;
 
         ide-latest = ide-2024-13-1-193;
-        ide-latest-beta = ide-2024-1400-4-1020;
+        ide-latest-beta = ide-2024-1400-4-1030;
 
         inherit ide-2023-400-0-324;
-        inherit ide-2024-1400-4-1020;
+        inherit ide-2024-1400-4-1030;
 
         inherit ide-2023-4-0-84;
         inherit ide-2023-8-2-108;
