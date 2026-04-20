@@ -26,6 +26,7 @@ Package output list:
 ```
 Betas:
 ide-latest-beta
+ide-2024-1400-5-1043
 ide-2024-1400-4-1030
 ide-2023-400-0-324
 
@@ -116,7 +117,7 @@ If you want to do that, the latest image (which GameMaker links in their [guide]
 - Have all packages reuse the same FHS environment. If that's not possible/unideal, there are a few libraries only needed for some versions but not others, and those should only be included when necessary
 - The online manual doesn't work (middle-clicking any function just takes you to the start page). Switching to the offline manual and downloading it when prompted does, though.
 - Audio playback in the IDE has crackles, for any file imported from a non .wav format
-- The IDE cannot kill the currently running game process when pressing stop/play/debug
+- The IDE does not kill the currently running game process when pressing stop/play/debug
 - Have runtimes be managed by the flake
 (Should be possible, would be cool. I imagine each IDE package would by default include the runtime package for Ubuntu matching that version, and you could override it with whatever you want)
 - GMRT support (As in, without setup. Maybe it could be made into a Nix derivation if how the GameMaker Package Manager downloads it is understood) (I have no idea if it's possible to run GMRT the intended way with this flake. I tried for a bit but it seemed to not be Fun)

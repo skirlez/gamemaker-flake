@@ -3,10 +3,12 @@
   pkgs,
 }: 
 let
+	# This could update some day (https://github.com/AppImageCommunity/pkg2appimage)
   excludelist = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/probonopd/AppImages/master/excludelist";
+    url = "https://raw.githubusercontent.com/AppImageCommunity/pkg2appimage/19e30b276ffedf4d3b4b56bc6320f463625a74f8/excludelist";
     sha256 = "sha256-UNsPiU80sWnEely8DBfbq2Hp7evKW8gmmh5qwb9L2tk=";
   };
+  
 in
   pkgs.stdenv.mkDerivation {
     pname = "linuxdeploy";
@@ -20,7 +22,7 @@ in
     };
 
     postPatch = ''
-      # they fetch some file in a script at build time, not allowed with nix
+      # they fetch this file in a script at build time, not allowed with nix
       substituteInPlace src/core/generate-excludelist.sh --replace "wget --quiet \"\$url\" -O - " "cat ${excludelist}"
     '';  
     nativeBuildInputs = with pkgs; [

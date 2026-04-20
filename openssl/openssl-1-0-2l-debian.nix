@@ -36,9 +36,14 @@ pkgs.stdenv.mkDerivation {
   # grab only what we need
   installPhase = ''
     mkdir -p $out/lib
+    
     cp libcrypto.so.1.0.0 $out/lib/libcrypto.so
     cp libssl.so.1.0.0 $out/lib/libssl.so
+    
     cp libcrypto.so.1.0.0 $out/lib/libcrypto.so.1.0.0
     cp libssl.so.1.0.0 $out/lib/libssl.so.1.0.0
+    
+    cp libcrypto.so.1.0.0 $out/lib/libcrypto.so.1.1
+    cp libssl.so.1.0.0 $out/lib/libssl.so.1.1
   '';
 }
