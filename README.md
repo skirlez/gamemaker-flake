@@ -24,6 +24,10 @@ So I'm leaving this warning here. By using any of the outputs you are installing
 ## Packages
 Package output list:
 ```
+LTS:
+ide-lts-2026
+ide-2026-0-0-15
+
 Betas:
 ide-latest-beta
 ide-2024-1400-5-1065

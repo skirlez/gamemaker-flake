@@ -190,11 +190,29 @@
           '';
         };
 
-      makeGamemakerPackage = { version, deb-hash, use-archive ? true, internal-normal ? false }:
+      makeGamemakerPackage = { version, deb-hash, use-archive ? true, type ? "beta", lts-year ? "" }:
         let
-          beta-prefix = if internal-normal then "" else "Beta-";
-          beta-suffix = if internal-normal then "" else "-Beta";
-          display-name-insert = if internal-normal then "" else "Beta ";
+          prefix = if type == "beta" then 
+          	"Beta-" 
+          else if type == "lts" then
+          	"LTS${lts-year}-"
+          else 
+          	"";
+           
+          suffix = if type == "beta" then 
+           	"-Beta" 
+           else if type == "lts" then
+           	"-LTS${lts-year}"
+           else 
+           	"";
+            
+          display-name-insert = if type == "beta" then 
+          	"Beta " 
+          else if type == "lts" then
+          	"LTS ${lts-year} "
+          else 
+          	"";
+           
           ide = pkgs.stdenv.mkDerivation rec {
             pname = "gamemaker-ide";
             inherit version;
@@ -202,12 +220,12 @@
             src = if use-archive then
               pkgs.fetchurl {
                 url =
-                  "https://github.com/Skirlez/gamemaker-ubuntu-archive/releases/download/v${version}/GameMaker-${beta-prefix}${version}.deb";
+                  "https://github.com/Skirlez/gamemaker-ubuntu-archive/releases/download/v${version}/GameMaker-${prefix}${version}.deb";
                 sha256 = deb-hash;
               }
             else
               pkgs.fetchurl {
-                url = "https://gms.yoyogames.com/GameMaker-${beta-prefix}${version}.deb";
+                url = "https://gms.yoyogames.com/GameMaker-${prefix}${version}.deb";
                 sha256 = deb-hash;
               };
 
@@ -215,8 +233,8 @@
             unpackPhase = ''
               mkdir ./unpacked
               dpkg -x $src ./unpacked
-              rm -rf ./unpacked/opt/GameMaker${beta-suffix}/armv7l
-              rm -rf ./unpacked/opt/GameMaker${beta-suffix}/aarch64
+              rm -rf ./unpacked/opt/GameMaker${suffix}/armv7l
+              rm -rf ./unpacked/opt/GameMaker${suffix}/aarch64
               rm -rf ./unpacked/usr/
             '';
             installPhase = ''
@@ -229,12 +247,12 @@
         in {
           env = makeGamemakerEnv {
             name = "gamemaker-${version}";
-            runScript = "${ide}/opt/GameMaker${beta-suffix}/GameMaker";
+            runScript = "${ide}/opt/GameMaker${suffix}/GameMaker";
             extraInstallCommands = ''
               mkdir -p $out/share/applications
               mkdir -p $out/share/icons/hicolor/256x256/apps
 
-              cp ${ide}/opt/GameMaker${beta-suffix}/GameMaker.png $out/share/icons/hicolor/256x256/apps/gamemaker-${version}.png
+              cp ${ide}/opt/GameMaker${suffix}/GameMaker.png $out/share/icons/hicolor/256x256/apps/gamemaker-${version}.png
 
               cat <<EOF > "$out/share/applications/gamemaker-${version}.desktop"
               [Desktop Entry]
@@ -277,23 +295,23 @@
       ide-2023-4-0-84 = (makeGamemakerPackage {
         version = "2023.4.0.84";
         deb-hash = "024z7ybljd63np14ny3r55knr2cc2b3zlafl73yzk9xj1sa1ldr5";
-        internal-normal = true;
+        type = "internal-normal";
       }).env;
       ide-2023-8-2-108 = (makeGamemakerPackage {
         version = "2023.8.2.108";
         deb-hash = "0r64ipsky8azk9vqlxf31kc74af5hplm5n7n2k5z14cycnmiryk4";
-        internal-normal = true;
+        type = "internal-normal";
       }).env;
       ide-2023-11-1-129 = (makeGamemakerPackage {
         version = "2023.11.1.129";
         deb-hash = "16gqpczwr1jas4r95wc5a5qjqsb9clpshi66h2g6l89dgd722sr8";
-        internal-normal = true;
+        type = "internal-normal";
       }).env;
 
       ide-2024-13-1-193 = (makeGamemakerPackage {
         version = "2024.13.1.193";
         deb-hash = "sha256-Vjflzn6r5Quy+NldjGw/ZXiNyNeDpj7+FjD0i/FDG/s=";
-        internal-normal = true;
+        type = "internal-normal";
       }).env;
 
 
@@ -303,14 +321,21 @@
       ide-2023-400-0-324 = (makeGamemakerPackage {
         version = "2023.400.0.324";
         deb-hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
+        type = "beta";
       }).env;
       ide-2024-1400-5-1065 = (makeGamemakerPackage {
         version = "2024.1400.5.1065";
         deb-hash = "sha256-lc0eihV/zlut8Ge1+l4638NaykcgcWsc3RhuOb4WIzY=";
+        type = "beta";
         use-archive = false;
       }).env;
-      
-
+      ide-2026-0-0-15 = (makeGamemakerPackage {
+        version = "2026.0.0.15";
+        deb-hash = "sha256-Id14v69Ny+Wuo06pa887VWZF/s6tGIRmgf84IYRqfzQ=";
+        type = "lts";
+        lts-year = "2026";
+        use-archive = false;
+      }).env;
     in {
       devShells.x86_64-linux = {
         default = dev;
@@ -318,8 +343,9 @@
       };
 
       packages.x86_64-linux = {
-        default = ide-2024-1400-5-1065;
+        default = ide-2026-0-0-15;
 
+        ide-lts-2026 = ide-2026-0-0-15;
         ide-latest-beta = ide-2024-1400-5-1065;
 
         inherit ide-2023-400-0-324;
