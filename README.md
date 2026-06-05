@@ -26,7 +26,7 @@ Package output list:
 ```
 LTS:
 ide-lts-2026
-ide-2026-0-0-15
+ide-2026-0-0-16
 
 Betas:
 ide-latest-beta
