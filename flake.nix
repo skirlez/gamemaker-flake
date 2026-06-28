@@ -71,7 +71,6 @@
               file
 
               # Required for running games (maybe)
-              libz
               gmp
               gcc.cc.lib
               libxext
@@ -186,7 +185,6 @@
               exec ${linuxdeploy}/bin/linuxdeploy "$@"
             EOF
             chmod +x $out/usr/bin/linuxdeploy
-            
           '';
         };
 
