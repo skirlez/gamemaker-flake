@@ -21,12 +21,13 @@ So I'm leaving this warning here. By using any of the outputs you are installing
 
 - In the event the `.deb` for a version is removed from GameMaker's servers, it will be uploaded to the archive and this flake will be updated to pull that version from there.
 
-## Packages
+## Outputs
+The default package is set to be the same as `ide-lts-2026`.
+
 Package output list:
 ```
 LTS:
 ide-lts-2026
-ide-2026-0-0-16
 
 Betas:
 ide-latest-beta
@@ -40,53 +41,15 @@ ide-2023-8-2-108
 ide-2023-4-0-84
 ```
 
+The flake also has devshell outputs:
+- default (Same FHS environment that the IDEs build and run games in)
+- igor (Minimal environment required to run Igor)
+
 ### Internal-Normal packages
-GameMaker does not actually have non-Beta versions for their Ubuntu IDE, but these builds without Beta branding exist or used to exist on their servers.
+These builds without Beta branding exist or used to exist on GameMaker's servers. 
+I happened to have more of these downloaded and archived than normal Betas.
 It should be noted you're putting your project in the exact same risk as using a Beta IDE version, by using these versions. Always use source control!
 
-I happened to have more of these downloaded and archived than normal Betas.
-
-
-## Usage
-### Adding an IDE package to systemPackages (at least how I do it)
-at the very start of the configuration.nix file, add:
-```nix
-let
-  gamemaker-flake = (builtins.getFlake "github:skirlez/gamemaker-flake");
-in
-```
-or clone the project and add
-```nix
-let
-  gamemaker-flake = (builtins.getFlake "/path/to/gamemaker-flake");
-in
-```
-Then you may pick any of the packages like so:
-```nix
-environment.systemPackages = with pkgs; [
-	...
-	gamemaker-flake.packages.x86_64-linux.ide-latest-beta
-]
-```
-### Accessing the GameMaker environment shell
-Run:
-```
-nix develop github:skirlez/gamemaker-flake
-```
-or clone the project and run this in its folder:
-```
-nix develop
-```
-
-### Accessing the Igor environment shell
-Run:
-```
-nix develop github:skirlez/gamemaker-flake#igor
-```
-or clone the project and run this in its folder:
-```
-nix develop .#igor
-```
 
 ### Using non-Beta runtimes with Beta IDE versions
 You may have to do this for older versions.
@@ -113,8 +76,6 @@ To avoid the `chroot`, in the FHS environment `/opt/steam-runtime` (the default 
 You can still download and specify the Steam runtime location manually in Preferences > Platform Settings > Ubuntu, and everything will still work.
 If you want to do that, the latest image (which GameMaker links in their [guide](https://github.com/YoYoGames/GameMaker-Bugs/wiki/Ubuntu-GMS2)) is available [here](https://repo.steampowered.com/steamrt-images-scout/snapshots/latest-steam-client-general-availability/com.valvesoftware.SteamRuntime.Sdk-amd64,i386-scout-sysroot.tar.gz).
 
-
-
 ## TODO
 - Have all packages reuse the same FHS environment. If that's not possible/unideal, there are a few libraries only needed for some versions but not others, and those should only be included when necessary
 - The online manual doesn't work (middle-clicking any function just takes you to the start page). Switching to the offline manual and downloading it when prompted does, though.
@@ -122,7 +83,7 @@ If you want to do that, the latest image (which GameMaker links in their [guide]
 - The IDE does not kill the currently running game process when pressing stop/play/debug
 - Have runtimes be managed by the flake
 (Should be possible, would be cool. I imagine each IDE package would by default include the runtime package for Ubuntu matching that version, and you could override it with whatever you want)
-- GMRT support (As in, without setup. Maybe it could be made into a Nix derivation if how the GameMaker Package Manager downloads it is understood) (I have no idea if it's possible to run GMRT the intended way with this flake. I tried for a bit but it seemed to not be Fun)
+- GMRT support (As in, without setup. Maybe its components could be made into Nix derivations if how the GameMaker Package Manager downloads it is understood) (I have no idea if it's possible to run GMRT the intended way with this flake. I tried for a bit but it seemed to not be Fun)
 
 
 ## License
