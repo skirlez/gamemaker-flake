@@ -31,7 +31,7 @@ ide-lts-2026
 
 Betas:
 ide-latest-beta
-ide-2024-1400-5-1065
+ide-2026-100-0-1083
 ide-2023-400-0-324
 
 Internal-Normal:
@@ -42,14 +42,13 @@ ide-2023-4-0-84
 ```
 
 The flake also has devshell outputs:
-- default (Same FHS environment that the IDEs build and run games in)
-- igor (Minimal environment required to run Igor)
+- `default` (Same FHS environment that the IDE builds and runs games in)
+- `igor` (Minimal FHS environment required to run Igor)
 
 ### Internal-Normal packages
 These builds without Beta branding exist or used to exist on GameMaker's servers. 
 I happened to have more of these downloaded and archived than normal Betas.
 It should be noted you're putting your project in the exact same risk as using a Beta IDE version, by using these versions. Always use source control!
-
 
 ### Using non-Beta runtimes with Beta IDE versions
 You may have to do this for older versions.
@@ -83,14 +82,12 @@ If you want to do that, the latest image (which GameMaker links in their [guide]
 - The IDE does not kill the currently running game process when pressing stop/play/debug
 - Have runtimes be managed by the flake
 (Should be possible, would be cool. I imagine each IDE package would by default include the runtime package for Ubuntu matching that version, and you could override it with whatever you want)
-- GMRT support (As in, without setup. Maybe its components could be made into Nix derivations if how the GameMaker Package Manager downloads it is understood) (I have no idea if it's possible to run GMRT the intended way with this flake. I tried for a bit but it seemed to not be Fun)
-
+- GMRT support (As in, without setup. Maybe its components could be made into Nix derivations if how the GameMaker Package Manager downloads them is understood) (I have no idea if it's possible to run GMRT the intended way with this flake. I tried for a bit but it seemed to not be Fun)
 
 ## License
 This flake is licensed under the AGPLv3 license.
 
-For the purpose of contributing to [Nixpkgs](https://github.com/NixOS/nixpkgs), you may use this code however you see fit, without attribution.
-I would submit a GameMaker package myself, but the process seems annoying, and I doubt the package outputs here are written in a sufficiently correct way.
+For the purpose of contributing to [Nixpkgs](https://github.com/NixOS/nixpkgs), you may use this code however you see fit, without attribution (I'm too lazy to submit a GameMaker package please do it for me).
 
 ## Contributing
 Please contribute

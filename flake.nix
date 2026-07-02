@@ -175,6 +175,8 @@
               exec ${appimagetool}/bin/appimagetool "$@"
             EOF
 
+            # TODO: starting 2026.100.0.1083 prints out an exception following the invokation of appimagetool. But only sometimes! and the build still works
+            # (could be a gamemaker bug, it is a beta after all)
             chmod +x $out/usr/bin/appimagetool
             
             # same idea for linuxdeploy. the IDE runs --appimage-extract, then inserts the extracted FHS environment to PATH.
@@ -321,9 +323,9 @@
         deb-hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
         type = "beta";
       }).env;
-      ide-2024-1400-5-1065 = (makeGamemakerPackage {
-        version = "2024.1400.5.1065";
-        deb-hash = "sha256-lc0eihV/zlut8Ge1+l4638NaykcgcWsc3RhuOb4WIzY=";
+      ide-2026-100-0-1083 = (makeGamemakerPackage {
+        version = "2026.100.0.1083";
+        deb-hash = "sha256-6qzU20tfro/PRq22r22V2IudeLiZ1qb+7Qu/axO9uOQ=";
         type = "beta";
         use-archive = false;
       }).env;
@@ -344,10 +346,10 @@
         default = ide-2026-0-0-16;
 
         ide-lts-2026 = ide-2026-0-0-16;
-        ide-latest-beta = ide-2024-1400-5-1065;
+        ide-latest-beta = ide-2026-100-0-1083;
 
         inherit ide-2023-400-0-324;
-        inherit ide-2024-1400-5-1065;
+        inherit ide-2026-100-0-1083;
 
         inherit ide-2023-4-0-84;
         inherit ide-2023-8-2-108;
