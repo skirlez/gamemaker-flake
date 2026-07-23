@@ -323,9 +323,9 @@
         deb-hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
         type = "beta";
       }).env;
-      ide-2026-100-0-1083 = (makeGamemakerPackage {
-        version = "2026.100.0.1083";
-        deb-hash = "sha256-6qzU20tfro/PRq22r22V2IudeLiZ1qb+7Qu/axO9uOQ=";
+      ide-2026-100-0-1104 = (makeGamemakerPackage {
+        version = "2026.100.0.1104";
+        deb-hash = "sha256-h7U/iOcj+3sySzXJer0T5fjUnTD6Jn4+gxRyDf+2z5s=";
         type = "beta";
         use-archive = false;
       }).env;
@@ -346,10 +346,9 @@
         default = ide-2026-0-0-16;
 
         ide-lts-2026 = ide-2026-0-0-16;
-        ide-latest-beta = ide-2026-100-0-1083;
 
+        ide-latest-beta = ide-2026-100-0-1104;
         inherit ide-2023-400-0-324;
-        inherit ide-2026-100-0-1083;
 
         inherit ide-2023-4-0-84;
         inherit ide-2023-8-2-108;

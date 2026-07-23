@@ -22,7 +22,12 @@ So I'm leaving this warning here. By using any of the outputs you are installing
 - In the event the `.deb` for a version is removed from GameMaker's servers, it will be uploaded to the archive and this flake will be updated to pull that version from there.
 
 ## Outputs
-The default package is set to be the same as `ide-lts-2026`.
+
+`ide-lts-2026` is currently on version v2026.0.0.16.
+
+`ide-latest-beta` is currently on version v2026.100.0.1104.
+
+The default package output is set to be the same as `ide-lts-2026`.
 
 Package output list:
 ```
@@ -31,7 +36,6 @@ ide-lts-2026
 
 Betas:
 ide-latest-beta
-ide-2026-100-0-1083
 ide-2023-400-0-324
 
 Internal-Normal:
