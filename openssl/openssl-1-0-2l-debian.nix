@@ -1,5 +1,5 @@
 # openssl 1.0.2 is no longer in nixpkgs, and also, when building normally, its symbols aren't versioned,
-# and debian has patches that make them versioned. going by the steam runtime, looks like it depends on 
+# and debian has patches that make them versioned. going by the steam runtime, looks like gamemaker depends on 
 # the ubuntu version of openssl 1.0.1. so this is close enough anyway
 { 
   pkgs,

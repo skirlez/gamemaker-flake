@@ -20,4 +20,5 @@
       gpgme
       curl
     ];
+    strictDeps = true;
   }

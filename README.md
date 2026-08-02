@@ -13,7 +13,7 @@ Please see https://github.com/MichailiK/yoyo-games-runner-nix - without which th
 
 ## Important
 - All of the outputs depend on OpenSSL 1.0.2 (for some reason, this library is required to run GameMaker games), which has been EOL since 2019 and is considered insecure.
-I couldn't set it up in a way where you explicitly add it to `nixpkgs.config.permittedInsecurePackages` - instead the flake doesn't require you to do anything.
+I don't think there's a flake equivalent for `nixpkgs.config.permittedInsecurePackages` list, so the flake doesn't require you to do anything for this library to be built and be used.
 So I'm leaving this warning here. By using any of the outputs you are installing this insecure package.
 
 - All old packages pull from https://github.com/skirlez/gamemaker-ubuntu-archive as GameMaker removed all of their old releases a while back.
@@ -25,7 +25,7 @@ So I'm leaving this warning here. By using any of the outputs you are installing
 
 `ide-lts-2026` is currently on version v2026.0.0.16.
 
-`ide-latest-beta` is currently on version v2026.100.0.1104.
+`ide-latest-beta` is currently on version v2026.100.0.1110.
 
 The default package output is set to be the same as `ide-lts-2026`.
 

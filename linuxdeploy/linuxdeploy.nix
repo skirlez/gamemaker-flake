@@ -35,4 +35,5 @@ in
       libpng
       libjpeg
     ];
+    strictDeps = true;
   }
