@@ -5,6 +5,7 @@ This flake has:
 - A shell in the same environment used for the IDE, so you can run games
 - A more lightweight shell that can run Igor for building from the terminal
 - Support for VM and YYC building, with no setup required!
+- A project builder output (W.I.P! See below)
 
 This flake only targets `x86_64-linux` for now. If you want to add support for your platform, See 
 [Contributing](#contributing)
@@ -23,13 +24,17 @@ So I'm leaving this warning here. By using any of the outputs you are installing
 
 ## Outputs
 
+### IDE
+
+There are many IDE package outputs under `packages.x86_64-linux`.
+
 `ide-lts-2026` is currently on version v2026.0.0.16.
 
 `ide-latest-beta` is currently on version v2026.100.0.1110.
 
 The default package output is set to be the same as `ide-lts-2026`.
 
-Package output list:
+Complete list:
 ```
 LTS:
 ide-lts-2026
@@ -45,9 +50,25 @@ ide-2023-8-2-108
 ide-2023-4-0-84
 ```
 
-The flake also has devshell outputs:
+### Project builder
+
+The project builder output is available in `packages.x86_64-linux.buildGameMakerProject`.
+It takes `projectName`, `projectFolder`, and `runtimeVersion`.
+
+For valid runtime versions, please see [runtimes.lock](https://github.com/skirlez/gamemaker-flake/tree/main/builder/runtimes.lock).
+
+Note, this serves a different purpose to https://github.com/MichailiK/yoyo-games-runner-nix. This builder actually builds your GameMaker project by packaging and using the appropriate GameMaker tools, downloading those + the runner directly from YoYoGames.
+
+Note that this is not *entirely* finished (the game's window title is stuck as TODO right now, for example).
+I only tested it against a handful of my own projects, so please report any issues you have with it.
+
+### Devshells
+The devshell outputs are under devShells.x86_64-linux.
+
 - `default` (Same FHS environment that the IDE builds and runs games in)
 - `igor` (Minimal FHS environment required to run Igor)
+
+
 
 ### Internal-Normal packages
 These builds without Beta branding exist or used to exist on GameMaker's servers. 

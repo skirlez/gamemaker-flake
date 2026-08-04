@@ -1,9 +1,10 @@
 {
-  description = "A flake for the GameMaker IDE and GameMaker games";
+  description = "A flake for the GameMaker IDE and for building and running GameMaker games";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-  
-  outputs = { self, nixpkgs }:
+
+  outputs =
+    { self, nixpkgs }:
     let
       system = "x86_64-linux";
 
@@ -13,97 +14,132 @@
       debian-curl = import ./curl/libcurl3-gnutls-debian.nix { inherit pkgs; };
       linuxdeploy = import ./linuxdeploy/linuxdeploy.nix { inherit pkgs; };
       appimagetool = import ./appimagetool/appimagetool.nix { inherit pkgs; };
+
       yyc-clang = pkgs.llvmPackages.clangUseLLVM;
-      
+
       # packages required to use igor
-      igorPackages = (with pkgs; [
-        bash
-        icu
-        openssl
-        ffmpeg
-        zlib
-        unzip
-        zip
-      ]);
+      igorPackages = (
+        with pkgs;
+        [
+          bash
+          icu
+          openssl
+          ffmpeg
+          zlib
+          unzip
+          zip
+        ]
+      );
+
+      # todo: use this list in makeGameMakerEnv to remove a few packages from its giant list
+      runnerPackages = (
+        with pkgs;
+        [
+          zlib
+          libGL
+          libGLU
+          gcc.cc.lib
+          openal
+
+          openssl-1-0
+          debian-curl
+
+          libxrandr
+          libxfixes
+          libxxf86vm
+        ]
+      );
 
       # not yet working! hopefully I can make it work eventually
-      gmrtPackages = (with pkgs; [
-        dotnetCorePackages.runtime_8_0-bin
-        
-        SDL2
-        zstd
-        libselinux
-        libxcb
-        libxrender
-      ]);
+      gmrtPackages = (
+        with pkgs;
+        [
+          dotnetCorePackages.runtime_8_0-bin
 
+          SDL2
+          zstd
+          libselinux
+          libxcb
+          libxrender
+        ]
+      );
 
-      makeGamemakerEnv = { name, runScript, extraInstallCommands ? "" }:
+      makeGameMakerEnv =
+        {
+          name,
+          runScript,
+          extraInstallCommands ? "",
+        }:
         pkgs.buildFHSEnv {
           name = name;
-          targetPkgs = pkgs:
-            (with pkgs; [
-              # https://github.com/YoYoGames/GameMaker-Bugs/wiki/Ubuntu-GMS2
-              openssh
-              libxxf86vm
-              openal
-              libGL
-              libGLU
-              fuse
-              
-              openssl-1-0
-              debian-curl
-              
-              curl
+          targetPkgs =
+            pkgs:
+            (
+              with pkgs;
+              [
+                # https://github.com/YoYoGames/GameMaker-Bugs/wiki/Ubuntu-GMS2
+                openssh
+                libxxf86vm
+                openal
+                libGL
+                libGLU
+                fuse
 
-              freetype
-              gtk3
+                openssl-1-0
+                debian-curl
 
-              libpulseaudio
-              libx11
-              libxi
+                curl
 
-              # add zenity as fallback (https://github.com/YoYoGames/GameMaker-Bugs/issues/14146#issuecomment-3974129895)
-              zenity
+                freetype
+                gtk3
 
-              # Gamemaker wants unshare, file for build process
-              util-linux
-              file
+                libpulseaudio
+                libx11
+                libxi
 
-              # Required for running games (maybe)
-              gmp
-              gcc.cc.lib
-              libxext
-              libxrandr
+                # add zenity as fallback (https://github.com/YoYoGames/GameMaker-Bugs/issues/14146#issuecomment-3974129895)
+                zenity
 
-              e2fsprogs
-              libgpg-error
+                # Gamemaker wants unshare, file for build process
+                util-linux
+                file
 
-              # required for yyc
-              libxfixes
+                # Required for running games (maybe)
+                gmp
+                gcc.cc.lib
+                libxext
+                libxrandr
 
-              # Seems to work without, but log errors about it missing
-              procps # for pidof
+                e2fsprogs
+                libgpg-error
 
-              # make "show in file manager" work, and allow gamemaker to open your browser
-              xdg-utils
+                # required for yyc
+                libxfixes
 
-              # yyc shits
-              gnumake
-              binutils
+                # Seems to work without, but log errors about it missing
+                procps # for pidof
 
-              # linuxdeploy wants it
-              patchelf
-              
-              # appimagetool wants it
-              squashfsTools
-              desktop-file-utils
-              zsync
-              	
-              # wants these since at least ide-2024-1400-0-904
-              libpng
-              brotli
-            ] ++ igorPackages /*++ gmrtPackages*/);
+                # make "show in file manager" work, and allow gamemaker to open your browser
+                xdg-utils
+
+                # yyc shits
+                gnumake
+                binutils
+
+                # linuxdeploy wants it
+                patchelf
+
+                # appimagetool wants it
+                squashfsTools
+                desktop-file-utils
+                zsync
+
+                # wants these since at least ide-2024-1400-0-904
+                libpng
+                brotli
+              ]
+              ++ igorPackages # ++ gmrtPackages
+            );
           profile = ''
             export LD_LIBRARY_PATH=/lib
             export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib
@@ -174,11 +210,12 @@
               [ "$1" = "--appimage-extract-and-run" ] && shift
               exec ${appimagetool}/bin/appimagetool "$@"
             EOF
+            chmod +x $out/usr/bin/appimagetool
 
             # TODO: starting 2026.100.0.1083 prints out an exception following the invokation of appimagetool. But only sometimes! and the build still works
             # (could be a gamemaker bug, it is a beta after all)
-            chmod +x $out/usr/bin/appimagetool
-            
+
+
             # same idea for linuxdeploy. the IDE runs --appimage-extract, then inserts the extracted FHS environment to PATH.
             # it isn't an appimage for us, so when it tries doing that just exit, otherwise just run
             cat << 'EOF' > $out/usr/bin/linuxdeploy
@@ -190,44 +227,54 @@
           '';
         };
 
-      makeGamemakerPackage = { version, deb-hash, use-archive ? true, type ? "beta", lts-year ? "" }:
+      makeGameMakerPackage =
+        {
+          version,
+          deb-hash,
+          use-archive ? true,
+          type ? "beta",
+          lts-year ? "",
+        }:
         let
-          prefix = if type == "beta" then 
-          	"Beta-" 
-          else if type == "lts" then
-          	"LTS${lts-year}-"
-          else 
-          	"";
-           
-          suffix = if type == "beta" then 
-           	"-Beta" 
-           else if type == "lts" then
-           	"-LTS${lts-year}"
-           else 
-           	"";
-            
-          display-name-insert = if type == "beta" then 
-          	"Beta " 
-          else if type == "lts" then
-          	"LTS ${lts-year} "
-          else 
-          	"";
-           
+          prefix =
+            if type == "beta" then
+              "Beta-"
+            else if type == "lts" then
+              "LTS${lts-year}-"
+            else
+              "";
+
+          suffix =
+            if type == "beta" then
+              "-Beta"
+            else if type == "lts" then
+              "-LTS${lts-year}"
+            else
+              "";
+
+          display-name-insert =
+            if type == "beta" then
+              "Beta "
+            else if type == "lts" then
+              "LTS ${lts-year} "
+            else
+              "";
+
           ide = pkgs.stdenv.mkDerivation rec {
             pname = "gamemaker-ide";
             inherit version;
 
-            src = if use-archive then
-              pkgs.fetchurl {
-                url =
-                  "https://github.com/Skirlez/gamemaker-ubuntu-archive/releases/download/v${version}/GameMaker-${prefix}${version}.deb";
-                sha256 = deb-hash;
-              }
-            else
-              pkgs.fetchurl {
-                url = "https://gms.yoyogames.com/GameMaker-${prefix}${version}.deb";
-                sha256 = deb-hash;
-              };
+            src =
+              if use-archive then
+                pkgs.fetchurl {
+                  url = "https://github.com/Skirlez/gamemaker-ubuntu-archive/releases/download/v${version}/GameMaker-${prefix}${version}.deb";
+                  sha256 = deb-hash;
+                }
+              else
+                pkgs.fetchurl {
+                  url = "https://gms.yoyogames.com/GameMaker-${prefix}${version}.deb";
+                  sha256 = deb-hash;
+                };
 
             nativeBuildInputs = [ pkgs.dpkg ];
             unpackPhase = ''
@@ -244,99 +291,113 @@
               runHook postInstall
             '';
           };
-        in {
-          env = makeGamemakerEnv {
-            name = "gamemaker-${version}";
-            runScript = "${ide}/opt/GameMaker${suffix}/GameMaker";
-            extraInstallCommands = ''
-              mkdir -p $out/share/applications
-              mkdir -p $out/share/icons/hicolor/256x256/apps
+        in
+        makeGameMakerEnv {
+          name = "gamemaker-${version}";
+          runScript = "${ide}/opt/GameMaker${suffix}/GameMaker";
+          extraInstallCommands = ''
+            mkdir -p $out/share/applications
+            mkdir -p $out/share/icons/hicolor/256x256/apps
 
-              cp ${ide}/opt/GameMaker${suffix}/GameMaker.png $out/share/icons/hicolor/256x256/apps/gamemaker-${version}.png
+            cp ${ide}/opt/GameMaker${suffix}/GameMaker.png $out/share/icons/hicolor/256x256/apps/gamemaker-${version}.png
 
-              cat <<EOF > "$out/share/applications/gamemaker-${version}.desktop"
-              [Desktop Entry]
-              Exec=gamemaker-${version}
-              Icon=gamemaker-${version}
-              Name=GameMaker ${display-name-insert}v${version}
-              Categories=Development
-              Comment=2D Game Engine IDE
-              Type=Application
-              StartupWMClass=GameMaker
-              EOF
-            '';
-          };
+            cat <<EOF > "$out/share/applications/gamemaker-${version}.desktop"
+            [Desktop Entry]
+            Exec=gamemaker-${version}
+            Icon=gamemaker-${version}
+            Name=GameMaker ${display-name-insert}v${version}
+            Categories=Development
+            Comment=2D Game Engine IDE
+            Type=Application
+            StartupWMClass=GameMaker
+            EOF
+          '';
         };
 
-      generic-gamemaker-fhs-env = makeGamemakerEnv {
+      genericGameMakerFHSEnv = makeGameMakerEnv {
         name = "gamemaker-env";
         runScript = "bash";
       };
 
       dev = pkgs.mkShell {
         shellHook = ''
-          exec ${generic-gamemaker-fhs-env}/bin/gamemaker-env
+          exec ${genericGameMakerFHSEnv}/bin/gamemaker-env
         '';
       };
 
-      igor-fhs-env = pkgs.buildFHSEnv {
+      igorFHSEnv = pkgs.buildFHSEnv {
         name = "igor-env";
         targetPkgs = pkgs: igorPackages;
       };
 
-
       igor = pkgs.mkShell {
         shellHook = ''
-          exec ${igor-fhs-env}/bin/igor-env
+          exec ${igorFHSEnv}/bin/igor-env
         '';
       };
 
-
-      ide-2023-4-0-84 = (makeGamemakerPackage {
+      ide-2023-4-0-84 = makeGameMakerPackage {
         version = "2023.4.0.84";
         deb-hash = "024z7ybljd63np14ny3r55knr2cc2b3zlafl73yzk9xj1sa1ldr5";
         type = "internal-normal";
-      }).env;
-      ide-2023-8-2-108 = (makeGamemakerPackage {
+      };
+      ide-2023-8-2-108 = makeGameMakerPackage {
         version = "2023.8.2.108";
         deb-hash = "0r64ipsky8azk9vqlxf31kc74af5hplm5n7n2k5z14cycnmiryk4";
         type = "internal-normal";
-      }).env;
-      ide-2023-11-1-129 = (makeGamemakerPackage {
+      };
+      ide-2023-11-1-129 = makeGameMakerPackage {
         version = "2023.11.1.129";
         deb-hash = "16gqpczwr1jas4r95wc5a5qjqsb9clpshi66h2g6l89dgd722sr8";
         type = "internal-normal";
-      }).env;
+      };
 
-      ide-2024-13-1-193 = (makeGamemakerPackage {
+      ide-2024-13-1-193 = makeGameMakerPackage {
         version = "2024.13.1.193";
         deb-hash = "sha256-Vjflzn6r5Quy+NldjGw/ZXiNyNeDpj7+FjD0i/FDG/s=";
         type = "internal-normal";
-      }).env;
+      };
 
-
-      /* as far as i can tell this version is straight up broken
-         ide-2024-1300-0-785 = (makeGamemakerPackage { version = "2024.1300.0.785"; deb-hash="1kygsajq3jgsjfrwsqhy8ss9r3696p4yag86qlrqdfr4kjrjdgdh"; use-archive=false; }).env;
+      /*
+        as far as i can tell this version is straight up broken
+        ide-2024-1300-0-785 = (makeGamemakerPackage { version = "2024.1300.0.785"; deb-hash="1kygsajq3jgsjfrwsqhy8ss9r3696p4yag86qlrqdfr4kjrjdgdh"; use-archive=false; }).env;
       */
-      ide-2023-400-0-324 = (makeGamemakerPackage {
+      ide-2023-400-0-324 = makeGameMakerPackage {
         version = "2023.400.0.324";
         deb-hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
         type = "beta";
-      }).env;
-      ide-2026-100-0-1110 = (makeGamemakerPackage {
+      };
+      ide-2026-100-0-1110 = makeGameMakerPackage {
         version = "2026.100.0.1110";
         deb-hash = "sha256-PeO1ZIueYZlKL0d+JclVC/lpRv8+lI9lPpTpLOAMgaE=";
         type = "beta";
         use-archive = false;
-      }).env;
-      ide-2026-0-0-16 = (makeGamemakerPackage {
+      };
+      ide-2026-0-0-16 = makeGameMakerPackage {
         version = "2026.0.0.16";
         deb-hash = "sha256-Uh2zCmk6FrqniXAFmHEkvqKTorvL4KmO3CWDcqsXErE=";
         type = "lts";
         lts-year = "2026";
         use-archive = false;
-      }).env;
-    in {
+      };
+
+      builder =
+        {
+          projectName,
+          projectFolder,
+          runtimeVersion,
+        }:
+        import ./builder/builder.nix {
+          inherit projectName;
+          inherit projectFolder;
+          inherit runtimeVersion;
+
+          inherit pkgs;
+          inherit runnerPackages;
+        };
+
+    in
+    {
       devShells.x86_64-linux = {
         default = dev;
         igor = igor;
@@ -344,6 +405,7 @@
 
       packages.x86_64-linux = {
         default = ide-2026-0-0-16;
+        buildGameMakerProject = builder;
 
         ide-lts-2026 = ide-2026-0-0-16;
 
@@ -355,5 +417,6 @@
         inherit ide-2023-11-1-129;
         inherit ide-2024-13-1-193;
       };
+      formatter.x86_64-linux = nixpkgs.legacyPackages.${system}.nixfmt-tree;
     };
 }

@@ -1,0 +1,40 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1785692966,
+        "narHash": "sha256-vUfIeBEfpbAfZ5zjgIkYk7eHBeVfCYVjLbWnMkseYnk=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "643809054d65fdd466a63e3155b8c498cb483c04",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "yoyomd5": "yoyomd5"
+      }
+    },
+    "yoyomd5": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-O3zcULyImPCThmM/EWgij8yaiwGZNb3fpQynCsO5shc=",
+        "type": "file",
+        "url": "https://raw.githubusercontent.com/jakeayy/Yoyo-MD5/df87410f09ea91637be02ec29f9fb312065d441c/js/md5.min.js"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://raw.githubusercontent.com/jakeayy/Yoyo-MD5/df87410f09ea91637be02ec29f9fb312065d441c/js/md5.min.js"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
