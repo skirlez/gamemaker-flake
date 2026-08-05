@@ -2,7 +2,9 @@
 # and debian has patches that make them versioned. going by the steam runtime, looks like gamemaker depends on
 # the ubuntu version of openssl 1.0.1. so this is close enough anyway
 {
-  pkgs,
+  stdenv,
+  fetchurl,
+  perl,
 }:
 let
   debianPatchesSource = builtins.fetchTarball {
@@ -18,21 +20,19 @@ let
       && builtins.stringLength line != 0
     ) (builtins.split "\n" series)
   );
-  stdenv = pkgs.stdenv;
-  lib = pkgs.lib;
 in
-pkgs.stdenv.mkDerivation {
+stdenv.mkDerivation {
   pname = "openssl";
   version = "1.0.2l";
 
-  src = pkgs.fetchurl {
+  src = fetchurl {
     url = "https://www.openssl.org/source/openssl-1.0.2l.tar.gz";
     sha256 = "sha256-zgcZW2WedfTh20NVKGAHAGHxVqmLs3tnKxAbpuPd8ww=";
   };
 
   patches = debianPatches;
   nativeBuildInputs = [
-    pkgs.perl
+    perl
   ];
   configureScript = "./Configure shared linux-x86_64";
 

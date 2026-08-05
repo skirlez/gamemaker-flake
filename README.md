@@ -53,7 +53,7 @@ ide-2023-4-0-84
 ### Project builder
 
 The project builder output is available in `packages.x86_64-linux.buildGameMakerProject`.
-It takes `projectName`, `projectFolder`, and `runtimeVersion`.
+It takes `src` and `runtimeVersion`.
 
 For valid runtime versions, please see [runtimes.lock](https://github.com/skirlez/gamemaker-flake/tree/main/builder/runtimes.lock).
 
@@ -62,12 +62,17 @@ Note, this serves a different purpose to https://github.com/MichailiK/yoyo-games
 Note that this is not *entirely* finished (the game's window title is stuck as TODO right now, for example).
 I only tested it against a handful of my own projects, so please report any issues you have with it.
 
+#### Prefabs error
+If the build fails with an error message regarding prefabs, look at `ForcedPrefabProjectReferences` inside your project's .yyp file.
+Create a folder called `prefabs` in the project folder. You must copy every prefab referenced in `ForcedPrefabProjectReferences` to there.
+You can copy them from your IDE's prefabs cache at `~/.local/share/GameMakerStudio2(-SUFFIX)/Prefabs`
+(-SUFFIX might be -Beta or -LTS2026, for example.)
+
 ### Devshells
 The devshell outputs are under devShells.x86_64-linux.
 
 - `default` (Same FHS environment that the IDE builds and runs games in)
 - `igor` (Minimal FHS environment required to run Igor)
-
 
 
 ### Internal-Normal packages

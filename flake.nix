@@ -10,10 +10,10 @@
 
       pkgs = import nixpkgs { inherit system; };
 
-      openssl-1-0 = import ./openssl/openssl-1-0-2l-debian.nix { inherit pkgs; };
-      debian-curl = import ./curl/libcurl3-gnutls-debian.nix { inherit pkgs; };
-      linuxdeploy = import ./linuxdeploy/linuxdeploy.nix { inherit pkgs; };
-      appimagetool = import ./appimagetool/appimagetool.nix { inherit pkgs; };
+      openssl-1-0 = pkgs.callPackage ./openssl-debian/package.nix { };
+      debian-curl = pkgs.callPackage ./curl-debian/package.nix { };
+      linuxdeploy = pkgs.callPackage ./linuxdeploy/package.nix { };
+      appimagetool = pkgs.callPackage ./appimagetool/package.nix { };
 
       yyc-clang = pkgs.llvmPackages.clangUseLLVM;
 
@@ -383,13 +383,11 @@
 
       builder =
         {
-          projectName,
-          projectFolder,
+          src,
           runtimeVersion,
         }:
         import ./builder/builder.nix {
-          inherit projectName;
-          inherit projectFolder;
+          projectFolder = src;
           inherit runtimeVersion;
 
           inherit pkgs;

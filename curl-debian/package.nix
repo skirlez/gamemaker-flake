@@ -1,6 +1,8 @@
 # GameMaker depends curl with debian versioning
 {
-  pkgs,
+  stdenv,
+  lib,
+  gnutls,
 }:
 let
   debianPatchesSource = builtins.fetchTarball {
@@ -16,8 +18,6 @@ let
       && builtins.stringLength line != 0
     ) (builtins.split "\n" series)
   );
-  stdenv = pkgs.stdenv;
-  lib = pkgs.lib;
 in
 stdenv.mkDerivation {
   pname = "libcurl3-gnutls";
@@ -31,9 +31,9 @@ stdenv.mkDerivation {
   configureFlags = [
     "--enable-versioned-symbols"
     "--disable-manual"
-    "--with-gnutls=${lib.getDev pkgs.gnutls}"
+    "--with-gnutls=${lib.getDev gnutls}"
   ];
-  buildInputs = with pkgs; [
+  buildInputs = [
     gnutls
   ];
 
