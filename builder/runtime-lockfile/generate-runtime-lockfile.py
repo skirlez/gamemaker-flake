@@ -35,6 +35,7 @@ enclosure_map = dict()
 
 for url in [
 			"https://gms.yoyogames.com/Zeus-Runtime.rss",
+			"https://gms.yoyogames.com/Zeus-Runtime-LTS.rss",
 			"https://gms.yoyogames.com/Zeus-Runtime-LTS2026.rss"
 		]:
 	with download_file_memory(url) as f:
@@ -44,10 +45,11 @@ for url in [
 		def fill_map(enclosure, module_name: str, map: dict[str, str]):
 			module = next((x for x in enclosure.findall("module") if x.attrib["name"] == module_name), None)
 			if module is None:
-				return
+				return False
 			url = module.attrib["url"]
 			assert url is not None
 			map[version] = url
+			return True
 	
 		for node in root.findall("channel/item"):
 			enclosure = node.find("enclosure")
@@ -58,12 +60,19 @@ for url in [
 			version = version_str.removeprefix("Version ")
 			assert all("name" in x.attrib and "url" in x.attrib for x in enclosure.findall("module"))
 			fill_map(enclosure, "linux", runner_map)
-			fill_map(enclosure, "base-module-linux-x64", tools_map)
+
+			# base module urls only got added after 2023.2.0.87. Before then, tools were in "enclosure".
+			if not fill_map(enclosure, "base-module-linux-x64", tools_map):
+				tools_map[version] = enclosure.attrib["url"]
+			
 			assert "url" in enclosure.attrib
 			enclosure_map[version] = enclosure.attrib["url"]
 		
 		# as of 03/08/2026 i cannot download these runtimes, it always returns AccessDenied
 		missing_runtimes = [
+			"2022.0.0.12",
+			"2.3.4.440",
+			"2.3.5.458",
 			"2023.6.0.136",
 			"2023.8.0.145",
 			"2024.4.0.168",
@@ -101,10 +110,6 @@ def hash_zip_file(version_and_entry):
 	version = version_and_entry[0]
 	entry: Entry = version_and_entry[1]
 	try:
-		with download_file_memory(entry.tools_url) as response:
-			tools_sha = hashlib.sha256(response.read()).hexdigest()
-
-		tools_pw = find_password(entry.tools_url.rsplit("/")[-1])
 
 		with download_file_memory(entry.runner_url) as response:
 			runner_sha = hashlib.sha256(response.read()).hexdigest()
@@ -114,10 +119,19 @@ def hash_zip_file(version_and_entry):
 			enclosure_sha = hashlib.sha256(response.read()).hexdigest()
 		enclosure_pw = find_password(entry.enclosure_url.rsplit("/")[-1])
 
+		if entry.enclosure_url == entry.tools_url:
+			tools_sha = enclosure_sha
+			tools_pw = enclosure_pw
+		else:
+			with download_file_memory(entry.tools_url) as response:
+				tools_sha = hashlib.sha256(response.read()).hexdigest()
+			tools_pw = find_password(entry.tools_url.rsplit("/")[-1])
+		
 		print(f"Results for v{version}:\n"
-			f"Tools sha256: {tools_sha}\nBase password: {tools_pw}\n"
-			f"Runner sha256: {runner_sha}\nRuntime password: {runner_pw}\n"
 			f"Enclosure sha256: {enclosure_sha}\nEnclosure password: {enclosure_pw}\n"
+			f"{f"Tools sha256: {tools_sha}\nTools password: {tools_pw}\n" if entry.enclosure_url != entry.tools_url else ""}"
+			f"Runner sha256: {runner_sha}\nRunner password: {runner_pw}\n"
+			
 		)
 
 		lockfile[version] = { 

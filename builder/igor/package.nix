@@ -13,7 +13,7 @@ let
     nativeBuildInputs = with pkgs; [
       autoPatchelfHook
       makeWrapper
-      p7zip
+      _7zz
     ];
 
     # errors if you do
@@ -22,20 +22,20 @@ let
     buildInputs = with pkgs; [
       gcc.cc.lib
       zlib
+      # wanted by igor at least on 2022.6
+      lttng-ust_2_12
     ];
     strictDeps = true;
     unpackPhase = ''
-      	    mkdir -p $out/temp
-      	    mkdir -p $out/bin
-      	    7z -y x $src bin/igor/linux/x64 -o$out/temp -p${
-             runtimeLockfile.${runtimeVersion}.tools.password
-           }
-      	    cp -r $out/temp/bin/igor/linux/x64/* $out/bin
-      	    rm -r $out/temp
-      	  '';
+      mkdir -p $out/temp
+      mkdir -p $out/bin
+      7zz -y x $src bin/igor/linux/x64 -o$out/temp -p${runtimeLockfile.${runtimeVersion}.tools.password}
+      cp -r $out/temp/bin/igor/linux/x64/* $out/bin
+      rm -r $out/temp
+    '';
     installPhase = ''
-      	    chmod +x $out/bin/Igor
-      	  '';
+      chmod +x $out/bin/Igor
+    '';
     meta = {
       mainProgram = "Igor";
     };
@@ -50,9 +50,10 @@ pkgs.buildFHSEnv {
     igor
     pkgs.ffmpeg
     pkgs.bash
+    pkgs.openssl
   ];
   profile = ''
-    			export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
-    		'';
+    export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+  '';
   runScript = "Igor";
 }

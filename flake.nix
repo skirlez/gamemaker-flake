@@ -12,7 +12,6 @@
 
       openssl-1-0 = pkgs.callPackage ./openssl-debian/package.nix { };
       debian-curl = pkgs.callPackage ./curl-debian/package.nix { };
-      linuxdeploy = pkgs.callPackage ./linuxdeploy/package.nix { };
       appimagetool = pkgs.callPackage ./appimagetool/package.nix { };
 
       yyc-clang = pkgs.llvmPackages.clangUseLLVM;
@@ -221,7 +220,7 @@
             cat << 'EOF' > $out/usr/bin/linuxdeploy
               #!${pkgs.bash}/bin/bash
               [ "$1" = "--appimage-extract" ] && exit
-              exec ${linuxdeploy}/bin/linuxdeploy "$@"
+              exec ${pkgs.linuxdeploy}/bin/linuxdeploy "$@"
             EOF
             chmod +x $out/usr/bin/linuxdeploy
           '';

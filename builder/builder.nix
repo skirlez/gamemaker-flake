@@ -15,7 +15,10 @@ let
     url = runtimeLockfile.${runtimeVersion}.runner.url;
     sha256 = runtimeLockfile.${runtimeVersion}.runner.sha256;
   };
-
+  enclosureZip = pkgs.fetchurl {
+    url = runtimeLockfile.${runtimeVersion}.enclosure.url;
+    sha256 = runtimeLockfile.${runtimeVersion}.enclosure.sha256;
+  };
   gmac = import ./gmac/package.nix {
     inherit pkgs;
     inherit toolsZip;
@@ -29,27 +32,44 @@ let
     inherit runtimeLockfile;
   };
 
-  enclosureZip = pkgs.fetchurl {
-    url = runtimeLockfile.${runtimeVersion}.enclosure.url;
-    sha256 = runtimeLockfile.${runtimeVersion}.enclosure.sha256;
-  };
+  # for parsing the yyp in the future (maybe)
+  # pythonWithDeps = (
+  #   pkgs.python3.withPackages (python-pkgs: [
+  #     python-pkgs.json5
+  #   ])
+  # );
 
   runtimeFolder =
     pkgs.runCommand "gm-linux-runtime-v${runtimeVersion}"
       {
-        buildInputs = [ pkgs.p7zip ];
+        buildInputs = [
+          pkgs._7zz
+        ];
       }
       ''
-        mkdir -p $out
-        7z -y x ${enclosureZip} -o$out -p${runtimeLockfile.${runtimeVersion}.enclosure.password}
+        echo $out
+        7zz -y x ${enclosureZip} -o$out -p${runtimeLockfile.${runtimeVersion}.enclosure.password}
+
+        # can exist
+        rm -rf $out/bin/igor/linux
+        rm -rf $out/bin/assetcompiler/linux
+        rm -rf $out/bin/igor/windows
+        rm -rf $out/bin/assetcompiler/windows
+        rm -rf $out/bin/igor/osx
+        rm -rf $out/bin/assetcompiler/osx
 
         mkdir -p $out/bin/igor/linux
         mkdir -p $out/bin/assetcompiler/linux
-
         ln -s ${igor}/bin $out/bin/igor/linux/x64
         ln -s ${gmac}/bin $out/bin/assetcompiler/linux/x64
 
-        7z -y x ${runtimeZip} BaseProject -o$out -p${runtimeLockfile.${runtimeVersion}.runner.password}
+        7zz -y x ${runtimeZip} BaseProject -o$out -p${runtimeLockfile.${runtimeVersion}.runner.password}
+        mkdir $out/linux
+
+        # fake runner so igor doesn't crash
+        touch $out/linux/runner
+        7zz a $out/linux/runner.zip $out/linux/runner
+        rm $out/linux/runner
       '';
 
   projectName = pkgs.lib.removeSuffix ".yyp" (
@@ -60,64 +80,67 @@ let
     )
   );
 
-  optionsIni =
-    pkgs.runCommand "${projectName}-optionsini"
-      {
-        buildInputs = [
-          igor
-        ];
-      }
-      ''
-            # It's probably dumb that this is done just for options.ini. But from what I've seen there's some complexities to how it is generated.
-            # So the fact Igor can do it is pretty nice. If it turns out it's not needed to generate it accurately for most games, we can get rid of this.
-            tmp=$(mktemp -d)
-            cd $tmp
-            Igor \
-            	-j=8 \
-        	    --project=${projectFolder}/${projectName}.yyp \
-        	    --rp=${runtimeFolder} \
-        			Linux IniFile
-           cp $tmp/output/${projectName}/options.ini $out
-      '';
-
   assets =
     pkgs.runCommand "${projectName}-assets"
       {
         buildInputs = [
-          gmac
+        	igor
+
+          # igor needs them
+          pkgs.zip
+          pkgs.unzip 
         ];
       }
       ''
-         mkdir -p $out
-         cd ${projectFolder}
-        	${gmac}/bin/GMAssetCompiler /c /cvm /zpex /cins /tgt=64 /mv=1 /iv=0 /rv=0 /bv=0 /j=8 /sh=True \
-          	/o=$out \
-           /gn=${projectName} \
-           /rtp=${runtimeFolder} \
-           /rt=v \
-           /m=linux \
-           /ic \
-           /itc \
-           /cd=$(mktemp -d) \
-           /td=$(mktemp -d) \
-           ${projectFolder}/${projectName}.yyp
+        mkdir -p $out
 
-         mv $out/${projectName}.unx $out/game.unx
-         cp ${optionsIni} $out/options.ini
+        # we copy the runner to temp because gmac on older versions expects images to be writable
+        runtimeCopy=$(mktemp -d)
+        # -P because we have symlinks to GMAC and Igor and we don't really need to copy the contents there
+        cp -rP ${runtimeFolder}/* $runtimeCopy
+        echo ${runtimeFolder}
+        
+        chmod -RP a+w $runtimeCopy
+
+        
+
+        srcCopy=$(mktemp -d)
+        cp -r ${projectFolder}/* $srcCopy
+        chmod -R a+w $srcCopy        
+
+        # igor touches this idk why
+        HOME=$(mktemp -d)
+        
+        cd $srcCopy
+        Igor \
+            -j=8 \
+            --project=$srcCopy/${projectName}.yyp \
+            --lf=${./guest-license.plist} \
+            --rp=$runtimeCopy \
+            --temp=$(mktemp -d) \
+            --cache=$(mktemp -d) \
+            --tf=$out/out.zip \
+            linux Package
+        unzip $out/out.zip -d $out
+        # remove out.zip and the runner extracted by igor
+        find . -maxdepth 1 -type f -delete
       '';
-
+      
   bareRunner = pkgs.stdenvNoCC.mkDerivation {
+    pname = "gm-linux-runner";
+    version = runtimeVersion;
     src = runtimeZip;
-    name = "gm-linux-runner-v${runtimeVersion}";
+    
     nativeBuildInputs = with pkgs; [
-      p7zip
+      _7zz
       autoPatchelfHook
     ];
+    
     buildInputs = runnerPackages;
     unpackPhase = ''
       mkdir -p $out/bin
-      7z -y x $src linux/runner.zip -o$out -p${runtimeLockfile.${runtimeVersion}.runner.password}
-      7z -y x $out/linux/runner.zip -o$out/bin
+      7zz -y x $src linux/runner.zip -o$out -p${runtimeLockfile.${runtimeVersion}.runner.password}
+      7zz -y x $out/linux/runner.zip -o$out/bin
       rm -r $out/linux
     '';
     installPhase = ''
@@ -126,18 +149,24 @@ let
   };
 
   game = pkgs.stdenvNoCC.mkDerivation {
-    src = assets;
-    # TODO extract version from yyp
     name = projectName;
-
+    nativeBuildInputs = [
+      pkgs.makeWrapper
+    ];
+    dontUnpack = true;
     installPhase = ''
       mkdir -p $out/bin
-      ln -s $src $out/bin/assets
+      ln -s ${assets}/assets $out/bin/assets
       cp ${bareRunner}/bin/runner $out/bin/${projectName}
+
+      # ideally this would be done in bareRunner but then it thinks the current directory is at bareRunner 
+      # instead of at game and it can't find the assets folder there
+      wrapProgram $out/bin/${projectName} \
+        --set LD_LIBRARY_PATH ${pkgs.lib.makeLibraryPath [ pkgs.openal ]}
     '';
     meta = {
       mainProgram = projectName;
     };
   };
 in
-game
+	game

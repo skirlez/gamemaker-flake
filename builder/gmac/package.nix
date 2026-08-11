@@ -18,7 +18,7 @@ stdenv.mkDerivation {
   nativeBuildInputs = with pkgs; [
     autoPatchelfHook
     makeWrapper
-    p7zip
+    _7zz
   ];
 
   # errors if you do
@@ -34,7 +34,7 @@ stdenv.mkDerivation {
   unpackPhase = ''
     mkdir -p $out/temp
     mkdir -p $out/bin
-    7z -y x $src bin/assetcompiler/linux/x64 -o$out/temp -p${
+    7zz -y x $src bin/assetcompiler/linux/x64 -o$out/temp -p${
       runtimeLockfile.${runtimeVersion}.tools.password
     }
     cp -r $out/temp/bin/assetcompiler/linux/x64/* $out/bin
@@ -44,7 +44,8 @@ stdenv.mkDerivation {
     chmod +x $out/bin/GMAssetCompiler
     wrapProgram $out/bin/GMAssetCompiler \
     --set DOTNET_SYSTEM_GLOBALIZATION_INVARIANT 1 \
-    --set PATH ${lib.makeBinPath [ pkgs.ffmpeg ]}
+    --set PATH ${lib.makeBinPath [ pkgs.ffmpeg ]} \
+    --set LD_LIBRARY_PATH ${lib.makeLibraryPath [ pkgs.openssl ]}
   '';
   meta = {
     mainProgram = "GMAssetCompiler";

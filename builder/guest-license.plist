@@ -1,0 +1,34 @@
+<plist version="1.0">
+<dict>
+        <key>Signature</key>
+        <data>
+        dO9RIXvNSqpSVx4CZdq+b8DL5adcmr4F9LZuh4C2AMZLk1BFtbM7PfBiWKlVUZVgrf4P
+        8qw6OrDnPjWnVlXj23d88qTDbGkr8unzmi6trQC8Eq/XnJKSj7EqHCU7uXjsMg6smpmW
+        cIthgfrVUBlZWPB6TfuhddHQiX8rErSnSe0=
+        </data>
+        <key>answer</key>
+        <string>1786562727</string>
+        <key>components</key>
+        <string>Windows;Mac;Linux;Mac.build_module;Linux.build_module;ci_build;operagx;operagx.build_module</string>
+        <key>device_id</key>
+        <string>HVnDcGFtNbddZBN8hVcXqw==</string>
+        <key>disabled_features</key>
+        <string/>
+        <key>email</key>
+        <string>guest@gamemaker.io</string>
+        <key>expiry_date</key>
+        <string>2026-09-04 23:59:59 UTC</string>
+        <key>id</key>
+        <integer>1928837811</integer>
+        <key>name</key>
+        <string>Guest</string>
+        <key>renewal_dates</key>
+        <string/>
+        <key>resource_limits</key>
+        <string>H4sIAAAAAAAEAGWPQYvCQAyFzxb8D9LzHtwFL97EVdnTFqfgeWyjRtvJkKYgiv/d6VRslj2+Ly8vL/dxMkqNZxRIJ/PJ1/SjAzlW0IA0EUViqHVl1J+9JbNyinrWzwtGL9pgTrYEjqQHa3KiNnKsoUIH6sjv/gzFK6Q3bYnqJh29l76t2ENXbohdXQVcg+QUW5I74FGBHK7SMmT2CAZvMAwyW1wCXDJYCRnDIDzMBYQgYaoG/FN7YtHX/2qzWyvhw3//SmyYWq+6LdoSScFx8ngC2rrfEpYBAAA=</string>
+        <key>status</key>
+        <string>success</string>
+        <key>token</key>
+        <string>09bdd0bc8c2f6cce3391a16679ede918</string>
+</dict>
+</plist>
