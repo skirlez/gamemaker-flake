@@ -40,7 +40,7 @@ let
   # );
 
   runtimeFolder =
-    pkgs.runCommand "gm-linux-runtime-v${runtimeVersion}"
+    pkgs.runCommand "gm-linux-runtime-${runtimeVersion}"
       {
         buildInputs = [
           pkgs._7zz
@@ -50,7 +50,6 @@ let
         echo $out
         7zz -y x ${enclosureZip} -o$out -p${runtimeLockfile.${runtimeVersion}.enclosure.password}
 
-        # can exist
         rm -rf $out/bin/igor/linux
         rm -rf $out/bin/assetcompiler/linux
         rm -rf $out/bin/igor/windows
@@ -64,9 +63,10 @@ let
         ln -s ${gmac}/bin $out/bin/assetcompiler/linux/x64
 
         7zz -y x ${runtimeZip} BaseProject -o$out -p${runtimeLockfile.${runtimeVersion}.runner.password}
-        mkdir $out/linux
+
 
         # fake runner so igor doesn't crash
+        mkdir $out/linux
         touch $out/linux/runner
         7zz a $out/linux/runner.zip $out/linux/runner
         rm $out/linux/runner
@@ -84,11 +84,11 @@ let
     pkgs.runCommand "${projectName}-assets"
       {
         buildInputs = [
-        	igor
+          igor
 
           # igor needs them
           pkgs.zip
-          pkgs.unzip 
+          pkgs.unzip
         ];
       }
       ''
@@ -99,21 +99,21 @@ let
         # -P because we have symlinks to GMAC and Igor and we don't really need to copy the contents there
         cp -rP ${runtimeFolder}/* $runtimeCopy
         echo ${runtimeFolder}
-        
+
         chmod -RP a+w $runtimeCopy
 
-        
-
+        # for the same reason, we copy the source
         srcCopy=$(mktemp -d)
         cp -r ${projectFolder}/* $srcCopy
         chmod -R a+w $srcCopy        
 
         # igor touches this idk why
         HOME=$(mktemp -d)
-        
+
         cd $srcCopy
         Igor \
             -j=8 \
+            -ac=--cins \
             --project=$srcCopy/${projectName}.yyp \
             --lf=${./guest-license.plist} \
             --rp=$runtimeCopy \
@@ -123,19 +123,19 @@ let
             linux Package
         unzip $out/out.zip -d $out
         # remove out.zip and the runner extracted by igor
-        find . -maxdepth 1 -type f -delete
+        find $out -maxdepth 1 -type f -delete
       '';
-      
+
   bareRunner = pkgs.stdenvNoCC.mkDerivation {
     pname = "gm-linux-runner";
     version = runtimeVersion;
     src = runtimeZip;
-    
+
     nativeBuildInputs = with pkgs; [
       _7zz
       autoPatchelfHook
     ];
-    
+
     buildInputs = runnerPackages;
     unpackPhase = ''
       mkdir -p $out/bin
@@ -147,26 +147,24 @@ let
       chmod +x $out/bin/runner
     '';
   };
-
-  game = pkgs.stdenvNoCC.mkDerivation {
-    name = projectName;
-    nativeBuildInputs = [
-      pkgs.makeWrapper
-    ];
-    dontUnpack = true;
-    installPhase = ''
-      mkdir -p $out/bin
-      ln -s ${assets}/assets $out/bin/assets
-      cp ${bareRunner}/bin/runner $out/bin/${projectName}
-
-      # ideally this would be done in bareRunner but then it thinks the current directory is at bareRunner 
-      # instead of at game and it can't find the assets folder there
-      wrapProgram $out/bin/${projectName} \
-        --set LD_LIBRARY_PATH ${pkgs.lib.makeLibraryPath [ pkgs.openal ]}
-    '';
-    meta = {
-      mainProgram = projectName;
-    };
-  };
 in
-	game
+pkgs.stdenvNoCC.mkDerivation {
+  name = projectName;
+  nativeBuildInputs = [
+    pkgs.makeWrapper
+  ];
+  dontUnpack = true;
+  installPhase = ''
+    mkdir -p $out/bin
+    ln -s ${assets}/assets $out/bin/assets
+    cp ${bareRunner}/bin/runner $out/bin/${projectName}
+
+    # ideally this would be done in bareRunner but then it thinks the current directory is at bareRunner 
+    # instead of at game and it can't find the assets folder there
+    wrapProgram $out/bin/${projectName} \
+      --set LD_LIBRARY_PATH ${pkgs.lib.makeLibraryPath [ pkgs.openal ]}
+  '';
+  meta = {
+    mainProgram = projectName;
+  };
+}

@@ -22,7 +22,7 @@
           deno
         ];
         text = ''
-          	python3 ./generate-runtime-lockfile.py ${yoyomd5}
+          python3 ./generate-runtime-lockfile.py ${yoyomd5}
         '';
       };
 

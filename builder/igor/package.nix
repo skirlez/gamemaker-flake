@@ -29,9 +29,9 @@ let
     unpackPhase = ''
       mkdir -p $out/temp
       mkdir -p $out/bin
-      7zz -y x $src bin/igor/linux/x64 -o$out/temp -p${runtimeLockfile.${runtimeVersion}.tools.password}
-      cp -r $out/temp/bin/igor/linux/x64/* $out/bin
-      rm -r $out/temp
+      tmp=$(mktemp -d)
+      7zz -y x $src bin/igor/linux/x64 -o$tmp -p${runtimeLockfile.${runtimeVersion}.tools.password}
+      mv $tmp/bin/igor/linux/x64/* $out/bin
     '';
     installPhase = ''
       chmod +x $out/bin/Igor
@@ -41,9 +41,8 @@ let
     };
   };
 in
-# the above works but calls /bin/bash (lol)
-# i also moved the equivalent setting of DOTNET_SYSTEM_GLOBALIZATION_INVARIANT from gmac
-# to the profile here
+# the above works except it calls /bin/bash (lol), so we need to use buildFHSEnv.
+# i wonder if there's any point using autoPatchelfHook in this case...
 pkgs.buildFHSEnv {
   name = "Igor";
   targetPkgs = pkgs: [
