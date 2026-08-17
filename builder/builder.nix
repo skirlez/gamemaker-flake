@@ -1,6 +1,7 @@
 {
   pkgs,
   projectFolder,
+  configuration,
   runtimeVersion,
   runnerPackages,
 }:
@@ -113,12 +114,13 @@ let
         cd $srcCopy
         Igor \
             -j=8 \
-            -ac=--cins \
+            -ac=/cins \
             --project=$srcCopy/${projectName}.yyp \
             --lf=${./guest-license.plist} \
             --rp=$runtimeCopy \
             --temp=$(mktemp -d) \
             --cache=$(mktemp -d) \
+            --config=\"${configuration}\" \
             --tf=$out/out.zip \
             linux Package
         unzip $out/out.zip -d $out

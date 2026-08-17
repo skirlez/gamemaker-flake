@@ -384,11 +384,12 @@
         {
           src,
           runtimeVersion,
+          configuration ? "Default"
         }:
         import ./builder/builder.nix {
           projectFolder = src;
           inherit runtimeVersion;
-
+          inherit configuration;
           inherit pkgs;
           inherit runnerPackages;
         };

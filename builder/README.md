@@ -6,7 +6,7 @@ This serves a different purpose to https://github.com/MichailiK/yoyo-games-runne
 This builder actually builds your GameMaker project by packaging and using the appropriate GameMaker tooling, downloading those + the runner directly from YoYoGames.
 You can't use this to package any games for which you don't have the source code.
 
-## Parameters:
+## Required parameters
 
 ### `src`
 
@@ -16,6 +16,13 @@ Folder containing the GameMaker project.
 
 Runtime version to use.
 For valid runtime versions, please see [runtimes.lock](https://github.com/skirlez/gamemaker-flake/tree/main/builder/runtimes.lock). It's most of them!
+
+## Optional Parameters
+
+### `configuration`
+
+Which configuration to build. Set to `"Default"` by default.
+
 
 ## Errors
 
