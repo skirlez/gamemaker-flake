@@ -2,11 +2,50 @@
   pkgs,
   projectFolder,
   configuration,
-  runtimeVersion,
   runnerPackages,
+  providedRuntimeVersion ? "",
 }:
 let
+  lib = pkgs.lib;
   runtimeLockfile = builtins.fromJSON (builtins.readFile ./runtimes.lock);
+
+  projectName = lib.removeSuffix ".yyp" (
+    builtins.head (
+      builtins.filter (filename: lib.hasSuffix ".yyp" filename) (
+        builtins.attrNames (builtins.readDir projectFolder)
+      )
+    )
+  );
+
+  yyp = builtins.fromJSON (
+    builtins.readFile (
+      import ./yyp-fixer {
+        inherit projectFolder;
+        inherit projectName;
+        inherit pkgs;
+      }
+    )
+  );
+
+  IDEVersionMajorMinor = lib.take 2 (builtins.splitVersion yyp.MetaData.IDEVersion);
+  runtimeVersionPrefix = builtins.concatStringsSep "." IDEVersionMajorMinor;
+  runtimeVersionCandidates = builtins.filter (version: lib.hasPrefix runtimeVersionPrefix version) (
+    builtins.attrNames runtimeLockfile
+  );
+  sortedRuntimeVersions = builtins.sort (
+    p: q: builtins.compareVersions p q > 0
+  ) runtimeVersionCandidates;
+  runtimeVersionGuess =
+    lib.throwIf (sortedRuntimeVersions == [ ])
+      "Project builder could not the guess runtime version (no runtimes beginning with \"${runtimeVersionPrefix}\" found). Please supply the runtimeVersion attribute manually."
+      builtins.head
+      sortedRuntimeVersions;
+
+  runtimeVersion =
+    if providedRuntimeVersion != "" then
+      providedRuntimeVersion
+    else
+      builtins.traceVerbose "Runtime version chosen: ${runtimeVersionGuess}" runtimeVersionGuess;
 
   toolsZip = pkgs.fetchurl {
     url = runtimeLockfile.${runtimeVersion}.tools.url;
@@ -23,27 +62,20 @@ let
   gmac = import ./gmac/package.nix {
     inherit pkgs;
     inherit toolsZip;
-    inherit runtimeVersion;
+    runtimeVersion = runtimeVersion;
     inherit runtimeLockfile;
   };
   igor = import ./igor/package.nix {
     inherit pkgs;
     inherit toolsZip;
-    inherit runtimeVersion;
+    runtimeVersion = runtimeVersion;
     inherit runtimeLockfile;
   };
-
-  # for parsing the yyp in the future (maybe)
-  # pythonWithDeps = (
-  #   pkgs.python3.withPackages (python-pkgs: [
-  #     python-pkgs.json5
-  #   ])
-  # );
 
   runtimeFolder =
     pkgs.runCommand "gm-linux-runtime-${runtimeVersion}"
       {
-        buildInputs = [
+        nativeBuildInputs = [
           pkgs._7zz
         ];
       }
@@ -65,21 +97,12 @@ let
 
         7zz -y x ${runtimeZip} BaseProject -o$out -p${runtimeLockfile.${runtimeVersion}.runner.password}
 
-
         # fake runner so igor doesn't crash
         mkdir $out/linux
         touch $out/linux/runner
         7zz a $out/linux/runner.zip $out/linux/runner
         rm $out/linux/runner
       '';
-
-  projectName = pkgs.lib.removeSuffix ".yyp" (
-    builtins.head (
-      builtins.filter (filename: pkgs.lib.hasSuffix ".yyp" filename) (
-        builtins.attrNames (builtins.readDir projectFolder)
-      )
-    )
-  );
 
   assets =
     pkgs.runCommand "${projectName}-assets"
@@ -164,7 +187,7 @@ pkgs.stdenvNoCC.mkDerivation {
     # ideally this would be done in bareRunner but then it thinks the current directory is at bareRunner 
     # instead of at game and it can't find the assets folder there
     wrapProgram $out/bin/${projectName} \
-      --set LD_LIBRARY_PATH ${pkgs.lib.makeLibraryPath [ pkgs.openal ]}
+      --set LD_LIBRARY_PATH ${lib.makeLibraryPath [ pkgs.openal ]}
   '';
   meta = {
     mainProgram = projectName;

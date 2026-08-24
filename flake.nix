@@ -383,15 +383,15 @@
       builder =
         {
           src,
-          runtimeVersion,
+          runtimeVersion ? "",
           configuration ? "Default"
         }:
         import ./builder/builder.nix {
           projectFolder = src;
-          inherit runtimeVersion;
+          providedRuntimeVersion= runtimeVersion;
           inherit configuration;
-          inherit pkgs;
           inherit runnerPackages;
+          inherit pkgs;
         };
 
     in

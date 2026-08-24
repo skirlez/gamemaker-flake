@@ -52,9 +52,9 @@ ide-2023-4-0-84
 
 ### Project builder
 
-The project builder output is available in `packages.x86_64-linux.buildGameMakerProject`. It builds a GameMaker project, outputting an executable.
+The project builder output is available in `packages.x86_64-linux.buildGameMakerProject`.
 
-It takes the parameters `src` and `runtimeVersion`. For more information, see the [builder](https://github.com/skirlez/gamemaker-flake/tree/main/builder) folder and it's README.
+It only needs an attribute `src`. For more information, see the [builder](https://github.com/skirlez/gamemaker-flake/tree/main/builder) folder and it's README.
 
 ### Devshells
 The devshell outputs are under devShells.x86_64-linux.

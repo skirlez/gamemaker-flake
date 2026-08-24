@@ -1,4 +1,4 @@
-# GameMaker depends curl with debian versioning
+# GameMaker depends on curl with debian versioning
 {
   stdenv,
   lib,
