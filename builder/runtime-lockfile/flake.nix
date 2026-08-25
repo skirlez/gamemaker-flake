@@ -13,18 +13,22 @@
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
+      mkInvoke =
+        args:
+        pkgs.writeShellApplication {
+          name = "update-runtimes-lockfile";
+          runtimeInputs = with pkgs; [
+            python3
+            deno
+          ];
+          text = ''
+            	          python3 ./generate-runtime-lockfile.py ${yoyomd5} ${args}
+            	        '';
+        };
     in
     {
-      packages.x86_64-linux.default = pkgs.writeShellApplication {
-        name = "update-runtimes-lockfile";
-        runtimeInputs = with pkgs; [
-          python3
-          deno
-        ];
-        text = ''
-          python3 ./generate-runtime-lockfile.py ${yoyomd5}
-        '';
-      };
+      packages.x86_64-linux.default = mkInvoke "";
+      packages.x86_64-linux.verify = mkInvoke "verify";
 
       formatter.x86_64-linux = nixpkgs.legacyPackages.${system}.nixfmt-tree;
     };

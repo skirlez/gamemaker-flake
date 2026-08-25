@@ -37,7 +37,9 @@ let
   ) runtimeVersionCandidates;
   runtimeVersionGuess =
     lib.throwIf (sortedRuntimeVersions == [ ])
-      "Project builder could not the guess runtime version (no runtimes beginning with \"${runtimeVersionPrefix}\" found). Please supply the runtimeVersion attribute manually."
+      "Project builder could not the guess runtime version (no runtimes beginning with \"${runtimeVersionPrefix}\" found).
+      Please supply the runtimeVersion attribute manually.
+      See https://github.com/skirlez/gamemaker-flake/tree/main/builder/runtimes.md for a valid list."
       builtins.head
       sortedRuntimeVersions;
 

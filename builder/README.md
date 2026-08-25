@@ -22,9 +22,9 @@ The folder containing the GameMaker project.
 Runtime version to use. 
 
 If unspecified, the builder will try choose a runtime version based off of the runtime version in the .yyp file.
-You can check which version is picked with `--traceVerbose`.
+You can check which version is picked with `--trace-verbose`.
 
-The builder can fail to choose a version, and in this case you must supply this attribute. For valid runtime versions, please see [runtimes.lock](https://github.com/skirlez/gamemaker-flake/tree/main/builder/runtimes.lock). It's most of them!
+The builder can fail to choose a version. In this case, it will error, and you must supply this attribute. For valid runtime versions, please see [runtimes.md](https://github.com/skirlez/gamemaker-flake/tree/main/builder/runtimes.md). It's most of them!
 
 ### `configuration`
 
