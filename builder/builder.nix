@@ -19,7 +19,7 @@ let
 
   yyp = builtins.fromJSON (
     builtins.readFile (
-      import ./yyp-fixer {
+      import ./yyp-fixer.nix {
         inherit projectFolder;
         inherit projectName;
         inherit pkgs;
@@ -153,6 +153,9 @@ let
         find $out -maxdepth 1 -type f -delete
       '';
 
+  # lol
+  optionsIni = builtins.fromTOML (builtins.readFile "${assets}/assets/options.ini");
+
   bareRunner = pkgs.stdenvNoCC.mkDerivation {
     pname = "gm-linux-runner";
     version = runtimeVersion;
@@ -179,18 +182,43 @@ pkgs.stdenvNoCC.mkDerivation {
   name = projectName;
   nativeBuildInputs = [
     pkgs.makeWrapper
+    pkgs.copyDesktopItems
   ];
-  dontUnpack = true;
-  installPhase = ''
-    mkdir -p $out/bin
-    ln -s ${assets}/assets $out/bin/assets
-    cp ${bareRunner}/bin/runner $out/bin/${projectName}
 
-    # ideally this would be done in bareRunner but then it thinks the current directory is at bareRunner 
-    # instead of at game and it can't find the assets folder there
-    wrapProgram $out/bin/${projectName} \
-      --set LD_LIBRARY_PATH ${lib.makeLibraryPath [ pkgs.openal ]}
+  # We could go further and copy the short/long descriptions present in the IDE,
+  # by parsing the linux options file. (It would require a yyp-fixer treatment, so that file should be generalized)
+  # Seemingly GameMaker itself doesn't seem to do this
+  # this would also allow us to read the game version and set the version attribute
+  # for this derivation/for assets
+  desktopItems = [
+    (pkgs.makeDesktopItem {
+      name = projectName;
+      desktopName = optionsIni.Linux.DisplayName;
+      exec = projectName;
+      icon = projectName;
+      categories = [ "Game" ];
+    })
+  ];
+
+  dontUnpack = true;
+
+  installPhase = ''
+    	runHook preInstall
+      mkdir -p $out/bin
+      ln -s ${assets}/assets $out/bin/assets
+      cp ${bareRunner}/bin/runner $out/bin/${projectName}
+
+      # ideally this would be done in bareRunner but then it thinks the current directory is at bareRunner 
+      # instead of at game and it can't find the assets folder there.
+      wrapProgram $out/bin/${projectName} \
+        --set LD_LIBRARY_PATH ${lib.makeLibraryPath [ pkgs.openal ]}
+        
+      mkdir -p $out/share/icons/hicolor/64x64/apps
+      cp ${assets}/assets/icon.png $out/share/icons/hicolor/64x64/apps/${projectName}.png
+      
+    	runHook postInstall
   '';
+
   meta = {
     mainProgram = projectName;
   };

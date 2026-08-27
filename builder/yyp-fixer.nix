@@ -8,11 +8,11 @@ let
     pkgs.runCommand "${projectName}-fixed-yyp"
       {
         nativeBuildInputs = [
-          pkgs.python3
+          pkgs.yaml2json
         ];
       }
       ''
-        python3 ${./fixup.py} ${projectFolder}/${projectName}.yyp $out
+        yaml2json < ${projectFolder}/${projectName}.yyp > $out
       '';
 in
 fixed-yyp

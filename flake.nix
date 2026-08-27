@@ -1,6 +1,5 @@
 {
   description = "A flake for the GameMaker IDE and for building and running GameMaker games";
-
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
   outputs =
@@ -384,11 +383,11 @@
         {
           src,
           runtimeVersion ? "",
-          configuration ? "Default"
+          configuration ? "Default",
         }:
         import ./builder/builder.nix {
           projectFolder = src;
-          providedRuntimeVersion= runtimeVersion;
+          providedRuntimeVersion = runtimeVersion;
           inherit configuration;
           inherit runnerPackages;
           inherit pkgs;
