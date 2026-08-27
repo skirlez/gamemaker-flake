@@ -28,7 +28,7 @@ let
   );
 
   IDEVersionMajorMinor = lib.take 2 (builtins.splitVersion yyp.MetaData.IDEVersion);
-  runtimeVersionPrefix = builtins.concatStringsSep "." IDEVersionMajorMinor;
+  runtimeVersionPrefix = (builtins.concatStringsSep "." IDEVersionMajorMinor) + ".";
   runtimeVersionCandidates = builtins.filter (version: lib.hasPrefix runtimeVersionPrefix version) (
     builtins.attrNames runtimeLockfile
   );
