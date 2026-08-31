@@ -30,7 +30,7 @@ There are many IDE package outputs under `packages.x86_64-linux`.
 
 `ide-lts-2026` is currently on version v2026.0.0.16.
 
-`ide-latest-beta` is currently on version v2026.100.0.1121.
+`ide-latest-beta` is currently on version v2026.100.0.1139.
 
 The default package output is set to be the same as `ide-lts-2026`.
 
