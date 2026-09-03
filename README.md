@@ -1,5 +1,6 @@
 # gamemaker-flake
 A Nix flake for GameMaker, and for playing/building GameMaker games.
+
 This flake has:
 - Package outputs for different IDE versions
 - A shell in the same environment used for the IDE, so you can run games
@@ -30,7 +31,7 @@ There are many IDE package outputs under `packages.x86_64-linux`.
 
 `ide-lts-2026` is currently on version v2026.0.0.16.
 
-`ide-latest-beta` is currently on version v2026.100.0.1139.
+`ide-latest-beta` is currently on version v2026.100.0.1142.
 
 The default package output is set to be the same as `ide-lts-2026`.
 

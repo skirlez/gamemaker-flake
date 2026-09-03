@@ -1,5 +1,5 @@
 {
-  description = "A flake for the GameMaker IDE and for building and running GameMaker games";
+  description = "A flake for GameMaker, and for playing/building GameMaker games";
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
   outputs =
@@ -365,9 +365,9 @@
         deb-hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
         type = "beta";
       };
-      ide-2026-100-0-1121 = makeGameMakerPackage {
-        version = "2026.100.0.1139";
-        deb-hash = "sha256-HzlEfoxDIIq3KGadlC14BNdWKqLsENKf63feR/GlV5M=";
+      ide-2026-100-0-1142 = makeGameMakerPackage {
+        version = "2026.100.0.1142";
+        deb-hash = "sha256-ugZObPHVMNDPSBYgq81KiX9tAEut1/QN5Uda2mTVSPA=";
         type = "beta";
         use-archive = false;
       };
@@ -407,7 +407,7 @@
 
         ide-lts-2026 = ide-2026-0-0-16;
 
-        ide-latest-beta = ide-2026-100-0-1121;
+        ide-latest-beta = ide-2026-100-0-1142;
         inherit ide-2023-400-0-324;
 
         inherit ide-2023-4-0-84;
