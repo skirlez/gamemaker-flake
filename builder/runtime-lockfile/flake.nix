@@ -1,5 +1,5 @@
 {
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.nixpkgs.url = "https://channels.nixos.org/nixpkgs-unstable/nixexprs.tar.zst";
   inputs.yoyomd5 = {
     url = "https://raw.githubusercontent.com/jakeayy/Yoyo-MD5/df87410f09ea91637be02ec29f9fb312065d441c/js/md5.min.js";
     flake = false;
@@ -22,8 +22,8 @@
             deno
           ];
           text = ''
-            	          python3 ./generate-runtime-lockfile.py ${yoyomd5} ${args}
-            	        '';
+            python3 ./generate-runtime-lockfile.py ${yoyomd5} ${args}
+          '';
         };
     in
     {

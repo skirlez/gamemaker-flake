@@ -2140,5 +2140,22 @@
             "sha256": "5c6861ae1f4acb649ecd493dc0fcca3ddef5eb5deffb5a3bf637e7eeb13ebed2",
             "url": "https://gms.yoyogames.com/a0954fbb-42c0-461a-8ea0-d09566b8f08b.zip"
         }
+    },
+    "2026.100.0.1106": {
+        "enclosure": {
+            "password": "P+Y8/u2OXL1FPtWrQkl0Pw==",
+            "sha256": "1a7c3afcb6ed8c44d3d61ecafa869b91bcf9466ea5bab86b13e85e2a68dc0513",
+            "url": "https://gms.yoyogames.com/544cb2e8-951c-44fb-acce-409546e5fb0c.zip"
+        },
+        "runner": {
+            "password": "tjwGRdkn04rOlDTKG7N/vA==",
+            "sha256": "75c6dee931d2d5876b310898a47d0101ab464b0f8705f10be44e5a930dd55aef",
+            "url": "https://gms.yoyogames.com/bc1f062d-9d0d-477d-9b0c-2724d75b5639.zip"
+        },
+        "tools": {
+            "password": "kymaVfejXhhMTG58OwrTXg==",
+            "sha256": "1bdc0419c8611779827d788df4121aa31f3b73bfa24ce58d71d53206d58e21b1",
+            "url": "https://gms.yoyogames.com/f5935f15-6f80-43d8-af92-ada661e2129a.zip"
+        }
     }
 }

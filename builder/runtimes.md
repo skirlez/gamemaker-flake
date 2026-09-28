@@ -141,5 +141,6 @@ This page contains all the runtimes the builder can use.
 2026.100.0.1090
 2026.100.0.1093
 2026.100.0.1098
+2026.100.0.1106
 ```
 

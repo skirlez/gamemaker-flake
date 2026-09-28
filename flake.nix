@@ -1,6 +1,6 @@
 {
   description = "A flake for GameMaker, and for playing/building GameMaker games";
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.nixpkgs.url = "https://channels.nixos.org/nixpkgs-unstable/nixexprs.tar.zst";
 
   outputs =
     { self, nixpkgs }:
@@ -366,8 +366,8 @@
         type = "beta";
       };
       ide-latest-beta = makeGameMakerPackage {
-        version = "2026.100.0.1149";
-        deb-hash = "sha256-n3HttYiuqGT7CwGX8FRe8aIO9wQNfwAyHAIGhZKl1GQ=";
+        version = "2026.100.0.1161";
+        deb-hash = "sha256-c6vYWC0FMY51/c+TBthYEz4qsZoRODiWX8EIx5YemhA=";
         type = "beta";
         use-archive = false;
       };
