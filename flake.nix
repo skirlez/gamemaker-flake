@@ -366,8 +366,8 @@
         type = "beta";
       };
       ide-latest-beta = makeGameMakerPackage {
-        version = "2026.100.0.1161";
-        deb-hash = "sha256-c6vYWC0FMY51/c+TBthYEz4qsZoRODiWX8EIx5YemhA=";
+        version = "2026.100.0.1171";
+        deb-hash = "sha256-IGhHql0nI1nmH9xy3DDf9dOwkGfcHiUeTC7e47E8FOY=";
         type = "beta";
         use-archive = false;
       };
