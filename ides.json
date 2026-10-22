@@ -1,0 +1,15 @@
+{
+  "lts-2026": {
+    "version": "2026.0.0.16",
+    "hash": "sha256-Uh2zCmk6FrqniXAFmHEkvqKTorvL4KmO3CWDcqsXErE=",
+    "type" : "lts",
+    "lts-year": "2026",
+    "use-archive": false
+  },
+  "beta": {
+    "version": "2026.100.0.1182",
+    "hash": "sha256-w6vLSSu0oZ5ijk+gs3fq/TJ44VIcz0K5TDbm8ynRca0=",
+    "type" : "beta",
+    "use-archive": false
+  }
+}

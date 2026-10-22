@@ -228,7 +228,7 @@
       makeGameMakerPackage =
         {
           version,
-          deb-hash,
+          hash,
           use-archive ? true,
           type ? "beta",
           lts-year ? "",
@@ -266,12 +266,12 @@
               if use-archive then
                 pkgs.fetchurl {
                   url = "https://github.com/Skirlez/gamemaker-ubuntu-archive/releases/download/v${version}/GameMaker-${prefix}${version}.deb";
-                  sha256 = deb-hash;
+                  sha256 = hash;
                 }
               else
                 pkgs.fetchurl {
                   url = "https://gms.yoyogames.com/GameMaker-${prefix}${version}.deb";
-                  sha256 = deb-hash;
+                  sha256 = hash;
                 };
 
             nativeBuildInputs = [ pkgs.dpkg ];
@@ -336,48 +336,38 @@
 
       ide-2023-4-0-84 = makeGameMakerPackage {
         version = "2023.4.0.84";
-        deb-hash = "024z7ybljd63np14ny3r55knr2cc2b3zlafl73yzk9xj1sa1ldr5";
+        hash = "024z7ybljd63np14ny3r55knr2cc2b3zlafl73yzk9xj1sa1ldr5";
         type = "internal-normal";
       };
       ide-2023-8-2-108 = makeGameMakerPackage {
         version = "2023.8.2.108";
-        deb-hash = "0r64ipsky8azk9vqlxf31kc74af5hplm5n7n2k5z14cycnmiryk4";
+        hash = "0r64ipsky8azk9vqlxf31kc74af5hplm5n7n2k5z14cycnmiryk4";
         type = "internal-normal";
       };
       ide-2023-11-1-129 = makeGameMakerPackage {
         version = "2023.11.1.129";
-        deb-hash = "16gqpczwr1jas4r95wc5a5qjqsb9clpshi66h2g6l89dgd722sr8";
+        hash = "16gqpczwr1jas4r95wc5a5qjqsb9clpshi66h2g6l89dgd722sr8";
         type = "internal-normal";
       };
 
       ide-2024-13-1-193 = makeGameMakerPackage {
         version = "2024.13.1.193";
-        deb-hash = "sha256-Vjflzn6r5Quy+NldjGw/ZXiNyNeDpj7+FjD0i/FDG/s=";
+        hash = "sha256-Vjflzn6r5Quy+NldjGw/ZXiNyNeDpj7+FjD0i/FDG/s=";
         type = "internal-normal";
       };
 
       /*
         as far as i can tell this version is straight up broken
-        ide-2024-1300-0-785 = (makeGamemakerPackage { version = "2024.1300.0.785"; deb-hash="1kygsajq3jgsjfrwsqhy8ss9r3696p4yag86qlrqdfr4kjrjdgdh"; use-archive=false; }).env;
+        ide-2024-1300-0-785 = (makeGamemakerPackage { version = "2024.1300.0.785"; hash="1kygsajq3jgsjfrwsqhy8ss9r3696p4yag86qlrqdfr4kjrjdgdh"; use-archive=false; }).env;
       */
       ide-2023-400-0-324 = makeGameMakerPackage {
         version = "2023.400.0.324";
-        deb-hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
+        hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
         type = "beta";
       };
-      ide-latest-beta = makeGameMakerPackage {
-        version = "2026.100.0.1171";
-        deb-hash = "sha256-IGhHql0nI1nmH9xy3DDf9dOwkGfcHiUeTC7e47E8FOY=";
-        type = "beta";
-        use-archive = false;
-      };
-      ide-lts-2026 = makeGameMakerPackage {
-        version = "2026.0.0.16";
-        deb-hash = "sha256-Uh2zCmk6FrqniXAFmHEkvqKTorvL4KmO3CWDcqsXErE=";
-        type = "lts";
-        lts-year = "2026";
-        use-archive = false;
-      };
+      ides = builtins.fromJSON (builtins.readFile ./ides.json);
+      ide-latest-beta = makeGameMakerPackage ides.beta;
+      ide-lts-2026 = makeGameMakerPackage ides.lts-2026;
 
       builder =
         {
