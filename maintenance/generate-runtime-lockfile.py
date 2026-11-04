@@ -29,10 +29,12 @@ def download_file_memory(url):
 
 
 verify_only = (len(sys.argv) > 2) and sys.argv[2] == "verify"
+
+builder_folder = "../builder"
 	
-if (not os.path.exists("../runtimes.lock")):
+if (not os.path.exists(f"{builder_folder}/runtimes.lock")):
 	lockfile = dict()
-with open("../runtimes.lock", "r") as f:
+with open(f"{builder_folder}/runtimes.lock", "r") as f:
 	if verify_only:
 		print("Only verifying that the downloads still work. Results won't be written.")
 		old_lockfile = json.load(f)
@@ -207,11 +209,11 @@ if verify_only:
 	if identical:
 		print("Old and new lockfiles are identical")
 	exit(0)
-with open("../runtimes.lock", "w") as f:
+with open(f"{builder_folder}/runtimes.lock", "w") as f:
 	json.dump(lockfile, f, sort_keys=True, indent=4)
 print("Written to runtimes.lock")
 
-with open("../runtimes.md", "w") as f:
+with open(f"{builder_folder}/runtimes.md", "w") as f:
 	txt = ""
 	runtimes = lockfile.keys()
 	for runtime_type in runtimes_list_map:

@@ -7,8 +7,8 @@
     "use-archive": false
   },
   "beta": {
-    "version": "2026.100.0.1182",
-    "hash": "sha256-w6vLSSu0oZ5ijk+gs3fq/TJ44VIcz0K5TDbm8ynRca0=",
+    "version": "2026.100.0.1195",
+    "hash": "sha256-wOHuNF7TadKxJ3kxTgec52fvovx48JXH124UOs3ZlIM=",
     "type" : "beta",
     "use-archive": false
   }
