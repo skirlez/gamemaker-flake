@@ -1,0 +1,10 @@
+{
+    "beta": {
+        "hash": "6b4c51602f3cc4aaaff02e84b561b8f9246821b4360d4e7fe0420fd37344bb6d",
+        "version": "2026.100.0.1199"
+    },
+    "lts-2026": {
+        "hash": "521db30a693a16baa7897005987124bea293a2bbcbe0a98edc258372ab1712b1",
+        "version": "2026.0.0.16"
+    }
+}

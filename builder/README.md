@@ -46,7 +46,7 @@ This would be coupled together with a new parameter like `prefabsHash`.
 
 ### Casing
 
-The asset compiler, specifically older versions, seem to struggle in case-sensitive environments.
+Some versions of the asset compiler seem to struggle in case-sensitive environments.
 
 Newer versions have a case-insensitive flag you can set, but I'm pretty sure it doesn't fix everything in the following text.
 

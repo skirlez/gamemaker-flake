@@ -11,7 +11,6 @@ import urllib.request
 from dataclasses import dataclass
 import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
-
 if len(sys.argv) == 1:
 	print("Run using the flake's nix run (please)")
 	exit(1)
@@ -31,6 +30,7 @@ def download_file_memory(url):
 verify_only = (len(sys.argv) > 2) and sys.argv[2] == "verify"
 
 builder_folder = "../builder"
+repo_folder = ".."
 	
 if (not os.path.exists(f"{builder_folder}/runtimes.lock")):
 	lockfile = dict()
@@ -59,6 +59,11 @@ url_names = [
 	"Beta"
 ]
 
+def extract_version_from_title(node):	
+		version_str = node.findtext("title")
+		assert version_str is not None
+		return version_str.removeprefix("Version ")
+
 runtimes_list_map: dict[str, list[str]] = dict()
 for i in range(len(urls)):
 	url = urls[i]
@@ -81,9 +86,7 @@ for i in range(len(urls)):
 			enclosure = node.find("enclosure")
 			if enclosure is None:
 				continue
-			version_str = node.findtext("title")
-			assert version_str is not None
-			version = version_str.removeprefix("Version ")
+			version = extract_version_from_title(node)
 			assert all("name" in x.attrib and "url" in x.attrib for x in enclosure.findall("module"))
 			fill_map(enclosure, "linux", runner_map)
 
@@ -181,9 +184,6 @@ def hash_zip_file(version_and_entry):
 		fail = True
 with ThreadPoolExecutor(max_workers=6) as exe:
 	exe.map(hash_zip_file, combined.items())
-if fail:
-	print("Some download(s) failed, not writing")
-	exit(1)
 if verify_only:
 	print("Comparing against old lockfile...")
 	identical = True
@@ -209,6 +209,9 @@ if verify_only:
 	if identical:
 		print("Old and new lockfiles are identical")
 	exit(0)
+if fail:
+	print("Some download(s) failed, not writing")
+	exit(1)
 with open(f"{builder_folder}/runtimes.lock", "w") as f:
 	json.dump(lockfile, f, sort_keys=True, indent=4)
 print("Written to runtimes.lock")
@@ -232,3 +235,49 @@ This page contains all the runtimes the builder can use.
 """
 	)
 print("Written to runtimes.md")
+
+
+print("Downloading IDEs one by one because I'm lazy")
+
+### IDEs
+ide_urls = [
+	"https://gms.yoyogames.com/update-linux-NuBeta.rss",
+	"https://gms.yoyogames.com/update-linux-LTS2026.rss"
+]
+ide_url_names = [
+	"beta",
+	"lts-2026"
+]
+
+ide_lockfile = {}
+for i in range(len(ide_urls)):
+	url = ide_urls[i]
+	url_name = ide_url_names[i]
+	with download_file_memory(url) as f:
+		tree = ET.parse(f)
+		root = tree.getroot()
+	node = root.findall("channel/item")[-1]
+	version = extract_version_from_title(node)
+	deb_url = node.findtext("link")
+	with download_file_memory(deb_url) as deb:
+		hash = hashlib.sha256(deb.read()).hexdigest()
+	part = {}
+	part["hash"] = hash
+	part["version"] = version
+	print(f"Downloaded IDE \"{url_name}\"\nVersion: {version}\nsha256: {hash}\n")
+	ide_lockfile[url_name] = part
+
+
+with open(f"{repo_folder}/ides.lock", "w") as f:
+	json.dump(ide_lockfile, f, sort_keys=True, indent=4)
+print("Written to ides.lock")
+
+
+with open(f"{repo_folder}/README.md", "r") as f:
+	lines = f.readlines()
+for i in range(len(lines)):
+	if lines[i].startswith("`ide-latest-beta` is currently on version v"):
+		lines[i] = f"`ide-latest-beta` is currently on version v{ide_lockfile["beta"]["version"]}\n"
+with open(f"{repo_folder}/README.md", "w") as f:
+	f.writelines(lines)
+print("I updated the README for you too for the beta version. Thank me later.")

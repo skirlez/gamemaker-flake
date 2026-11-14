@@ -16,13 +16,13 @@
       mkInvoke =
         args:
         pkgs.writeShellApplication {
-          name = "update-runtimes-lockfile";
+          name = "update-repository";
           runtimeInputs = with pkgs; [
             python3
             deno
           ];
           text = ''
-            python3 ./generate-runtime-lockfile.py ${yoyomd5} ${args}
+            python3 ./update.py ${yoyomd5} ${args}
           '';
         };
     in

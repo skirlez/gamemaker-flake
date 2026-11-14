@@ -365,9 +365,16 @@
         hash = "08zz0ff7381259kj2gnnlf32p5w8hz6bqhz7968mw0i7z0p6w8hc";
         type = "beta";
       };
-      ides = builtins.fromJSON (builtins.readFile ./ides.json);
-      ide-latest-beta = makeGameMakerPackage ides.beta;
-      ide-lts-2026 = makeGameMakerPackage ides.lts-2026;
+      ides = builtins.fromJSON (builtins.readFile ./ides.lock);
+      ide-latest-beta = makeGameMakerPackage ({
+        type = "beta";
+        use-archive = false;
+      } // ides.beta);
+      ide-lts-2026 = makeGameMakerPackage ({
+        type = "lts";
+        lts-year = "2026";
+        use-archive = false;
+      } // ides.lts-2026);
 
       builder =
         {
