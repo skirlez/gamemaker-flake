@@ -29,7 +29,7 @@ So I'm leaving this warning here. By using any of the outputs you are installing
 
 There are many IDE package outputs under `packages.x86_64-linux`.
 
-`ide-lts-2026` is currently on version v2026.0.0.16.
+`ide-lts-2026` is currently on version v2026.1.0.27.
 
 `ide-latest-beta` is currently on version v2026.100.0.1199
 

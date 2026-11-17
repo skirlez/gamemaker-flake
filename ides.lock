@@ -4,7 +4,7 @@
         "version": "2026.100.0.1199"
     },
     "lts-2026": {
-        "hash": "521db30a693a16baa7897005987124bea293a2bbcbe0a98edc258372ab1712b1",
-        "version": "2026.0.0.16"
+        "hash": "da1484bed5588e5565c00914bd9e9aaff85cdebb397631c4b572aa272cf225e1",
+        "version": "2026.1.0.27"
     }
 }
